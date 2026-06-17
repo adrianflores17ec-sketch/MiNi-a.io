@@ -188,8 +188,8 @@ body {
   <div class="games-home">
     <div class="mini-card" onclick="location.href='pupiletras.html'"><div class="card-inner"><span class="card-emoji">🍜</span><span class="card-label">Sopa de letras</span></div></div>
     <div class="mini-card" onclick="location.href='preguntas.html'"><div class="card-inner"><span class="card-emoji">❓</span><span class="card-label">Preguntas</span></div></div>
-    <div class="mini-card"><div class="card-inner"><span class="card-emoji">🌊</span><span class="card-label">Lizeth</span></div></div>
-    <div class="mini-card"><div class="card-inner"><span class="card-emoji">🎁</span><span class="card-label">Sorpresa</span></div></div>
+    <div class="mini-card" onclick="window.location.href='juego/index.html'"><div class="card-inner"><span class="card-emoji">🌊</span><span class="card-label">Lizeth</span></div></div>
+    <div class="mini-card" onclick="alert('No tuve tiempo, perdón 😭. Se fue el presupuesto en la galaxia 😭')"><div class="card-inner"><span class="card-emoji">🎁</span><span class="card-label">Sorpresa</span></div></div>
   </div>
   
   <button class="btn-mailbox" onclick="openMail()">
@@ -341,6 +341,12 @@ for (let i = 0; i < 15; i++) {
   s.style.animationDuration = (25 + Math.random() * 20) + "s";
   document.getElementById("words").appendChild(s);
 }
+
+document.querySelectorAll('.mini-card')[2].onclick = function(){
+  alert('No está terminado del todo, perdón. Entre el trabajo y los exámenes el juego está en un 70%. Tiene algunas fallas y es difícil terminarlo, y aparte creo que ya no habría motivo para terminarlo ://');
+  window.location.href='juego/index.html';
+};
+
 setInterval(loadMessages, 10000);
 </script>
 </body>

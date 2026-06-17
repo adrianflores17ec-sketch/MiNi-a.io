@@ -1,0 +1,24 @@
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body, html { width: 100%; height: 100%; overflow: hidden; background: #000; touch-action: none; user-select: none; }
+
+canvas { display: block; width: 100vw; height: 100vh; image-rendering: pixelated; }
+/* Solo se aplica cuando la clase existe */
+.menu-blur { filter: blur(15px) brightness(0.4); }
+
+#main-menu, #game-over-screen {
+    position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+    display: flex; flex-direction: column; justify-content: center; align-items: center;
+    z-index: 100; color: white; font-family: 'Arial Black', sans-serif;
+}
+
+.menu-content { background: rgba(0,0,0,0.4); padding: 30px; border-radius: 30px; text-align: center; }
+.character-preview { display: flex; align-items: center; gap: 20px; margin: 20px 0; }
+.preview-box { display: flex; flex-direction: column; align-items: center; width: 140px; }
+.preview-box img { height: 120px; filter: drop-shadow(0 0 10px gold); }
+.preview-box span { font-size: 14px; color: #ffd700; margin-top: 10px; }
+
+.nav-btn { background: #ffd700; border: none; width: 45px; height: 45px; border-radius: 50%; cursor: pointer; font-size: 20px; }
+#start-btn, #restart-btn { padding: 15px 40px; font-size: 22px; background: #ffd700; border: none; border-radius: 50px; cursor: pointer; color: #000; font-weight: bold; }
+
+#ui { position: absolute; top: 20px; left: 20px; display: flex; flex-direction: column; gap: 8px; z-index: 10; }
+.stat-box { background: rgba(0,0,0,0.7); padding: 10px 15px; border-radius: 10px; border: 2px solid #ffd700; color: white; min-width: 160px; }

@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Lizeth Tsunami</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div id="main-menu">
+        <div class="menu-content">
+            <h1>LIZETH TSUNAMI</h1>
+            <div class="character-preview">
+                <button class="nav-btn" id="prev-skin">◀</button>
+                <div class="preview-box">
+                    <img id="skin-img-preview" src="assets/skin1/idle1.png">
+                    <span id="skin-name">LIZETH 1</span>
+                </div>
+                <button class="nav-btn" id="next-skin">▶</button>
+            </div>
+            <button id="start-btn">EMPEZAR PARTIDA</button>
+        </div>
+    </div>
+
+    <div id="ui" style="display: none;">
+        <div id="gold-stat" class="stat-box">💰 Oro: <span id="gold-count">0</span></div>
+        <div id="lizeth-stat" class="stat-box">👯 Lizeths: <span id="lizeth-count">1</span></div>
+    </div>
+
+    <div id="game-over-screen" style="display: none;">
+        <h1>¡GAME OVER!</h1>
+        <button id="restart-btn">NUEVA PARTIDA</button>
+    </div>
+
+    <canvas id="game"></canvas>
+
+    <script src="js/player.js"></script>
+    <script src="js/item.js"></script>
+    <script src="js/input.js"></script>
+    <script src="js/game.js"></script>
+</body>
+</html>
