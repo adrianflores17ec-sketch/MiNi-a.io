@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <title>Ecos</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -10,9 +10,10 @@
 <style>
 /* ── DISEÑO BASE ── */
 * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+
 body { 
   height: 100vh; 
-  height: -webkit-fill-available; /* Ajuste para navegadores móviles */
+  height: 100dvh; /* Altura dinámica para móviles modernos */
   overflow: hidden; 
   background: radial-gradient(circle at 50% 30%, #1a1a2e, #000); 
   font-family: 'Space Grotesk', Arial, sans-serif; 
@@ -39,12 +40,20 @@ body {
 .background-words span { position: absolute; bottom: -80px; font-size: .7rem; color: rgba(255,255,255,.18); animation: texto linear infinite; }
 @keyframes texto { 0% { opacity:0; transform:translateY(0); } 30% { opacity:.5; } 100% { opacity:0; transform:translateY(-120vh); } }
 
-/* ── DISEÑO DE BOTONES (ESTILO ORIGINAL) ── */
+/* ── MAIN CONTAINER AJUSTADO ── */
 .main-container { 
-  display: none; height: 100vh; position: relative; z-index: 5; 
-  flex-direction: column; align-items: center; overflow: hidden;
-  justify-content: flex-start; /* Alineación superior */
+  display: none; 
+  height: 100vh; 
+  height: 100dvh; 
+  position: relative; 
+  z-index: 5; 
+  flex-direction: column; 
+  align-items: center; 
+  overflow: hidden;
+  justify-content: flex-start;
+  padding-bottom: env(safe-area-inset-bottom); /* Evita que Snoopy quede detrás de la barra de gestos */
 }
+
 .app-header { width: 100%; padding: 40px 0 10px; text-align: center; flex-shrink: 0; }
 .app-title { font-family: 'Press Start 2P', monospace; font-size: 8px; color: rgba(255,255,255,0.22); letter-spacing: 4px; }
 
@@ -53,8 +62,9 @@ body {
   width: 90%; max-width: 380px; margin-top: 8px; flex-shrink: 0;
 }
 
+/* ── BOTONES ORIGINALES ── */
 .mini-card { 
-  height: 110px; border-radius: 4px; 
+  height: 128px; border-radius: 4px; 
   display: flex; align-items: center; justify-content: center; flex-direction: column; 
   cursor: pointer; position: relative; overflow: hidden; color: white; 
   transition: transform .12s, filter .12s; 
@@ -65,7 +75,7 @@ body {
   background: repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(0,0,0,0.15) 3px, rgba(0,0,0,0.15) 4px); 
 }
 .card-inner { position: relative; z-index: 2; display: flex; flex-direction: column; align-items: center; gap: 9px; }
-.card-emoji { font-size: 28px; }
+.card-emoji { font-size: 30px; }
 .card-label { font-family: 'Press Start 2P', monospace; font-size: 7px; text-align: center; line-height: 1.7; text-shadow: 2px 2px 0 rgba(0,0,0,0.5); }
 
 .mini-card:nth-child(1) { background:linear-gradient(135deg,#c9184a,#ff4d6d); box-shadow:0 0 0 2px #ff4d6d,3px 3px 0 #7b0028; }
@@ -76,7 +86,7 @@ body {
 
 /* ── BOTÓN BUZÓN ── */
 .btn-mailbox { 
-  margin-top: 15px; width: 90%; max-width: 380px; height: 68px; 
+  margin-top: 12px; width: 90%; max-width: 380px; height: 68px; 
   border-radius: 10px; background: #080812; border: none; 
   cursor: pointer; position: relative; overflow: hidden; 
   display: flex; align-items: center; gap: 12px; padding: 0 16px; 
@@ -96,18 +106,29 @@ body {
 .mail-title { font-size: 14px; font-weight: 600; color: #fff; }
 .mail-sub { font-size: 10px; color: rgba(255,150,200,0.6); }
 
-/* ── SNOOPY ── */
+/* ── SNOOPY AREA CORREGIDA ── */
 .snoopy-area { 
-  flex: 1; display: flex; align-items: flex-end; justify-content: center; 
-  width: 100%; padding-bottom: 10px; min-height: 100px;
+  flex: 1; 
+  display: flex; 
+  align-items: flex-end; 
+  justify-content: center; 
+  width: 100%; 
+  overflow: hidden;
+  min-height: 120px;
 }
-.snoopy-frame { width: 140px; animation: respirar 2.5s ease-in-out infinite; filter: drop-shadow(0 10px 12px rgba(0,0,0,0.8)); }
+.snoopy-frame { 
+  width: 152px; 
+  max-height: 100%; 
+  object-fit: contain;
+  animation: respirar 2.5s ease-in-out infinite; 
+  filter: drop-shadow(0 10px 12px rgba(0,0,0,0.8)); 
+}
 @keyframes respirar { 50%{ transform:translateY(-8px); } }
 
 /* ── CHAT ── */
 #mailModal { position: fixed; inset: 0; z-index: 200; background: rgba(0,0,0,0.82); display: none; align-items: flex-end; justify-content: center; }
 #mailModal.open { display: flex; }
-.mail-sheet { width: 100%; max-width: 480px; height: 92vh; background: #0d0d1f; border-radius: 24px 24px 0 0; display: flex; flex-direction: column; overflow: hidden; animation: slideUp .32s cubic-bezier(.22,1,.36,1); }
+.mail-sheet { width: 100%; max-width: 480px; height: 92vh; height: 92dvh; background: #0d0d1f; border-radius: 24px 24px 0 0; display: flex; flex-direction: column; overflow: hidden; animation: slideUp .32s cubic-bezier(.22,1,.36,1); }
 @keyframes slideUp { from{transform:translateY(100%)} to{transform:translateY(0)} }
 
 .sheet-header { display: flex; align-items: center; gap: 11px; padding: 16px; background: #111125; border-bottom: 0.5px solid rgba(255,255,255,0.06); flex-shrink: 0; }
@@ -125,7 +146,7 @@ body {
 .msg-meta { font-size: 9px; color: rgba(255,255,255,0.4); margin-top: 4px; display: flex; align-items: center; gap: 4px; }
 .visto-blue { color: #4ade80; font-weight: bold; }
 
-.chat-input-bar { padding: 12px; background: #111125; display: flex; gap: 10px; align-items: center; border-top: 1px solid rgba(255,255,255,0.05); flex-shrink: 0; padding-bottom: calc(12px + env(safe-area-inset-bottom)); }
+.chat-input-bar { padding: 15px; background: #111125; display: flex; gap: 10px; align-items: center; border-top: 1px solid rgba(255,255,255,0.05); padding-bottom: calc(15px + env(safe-area-inset-bottom)); }
 .chat-input { flex: 1; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,77,141,0.2); padding: 12px 18px; border-radius: 25px; color: #fff; font-family: inherit; font-size: 16px; outline: none; }
 .chat-send-btn { width: 45px; height: 45px; border-radius: 50%; background: #ff477e; border: none; color: #fff; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
 
@@ -133,12 +154,12 @@ body {
 .toast { position: fixed; top: 20px; left: 50%; transform: translateX(-50%) translateY(-100px); background: #ff477e; padding: 10px 20px; border-radius: 20px; transition: 0.4s; z-index: 1000; }
 .toast.show { transform: translateX(-50%) translateY(0); }
 
-/* MEDIA QUERY PARA PANTALLAS MUY PEQUEÑAS */
-@media (max-height: 600px) {
+/* MEDIA QUERY PARA DISPOSITIVOS CORTOS */
+@media (max-height: 650px) {
   .app-header { padding: 20px 0 5px; }
-  .mini-card { height: 90px; }
-  .card-emoji { font-size: 22px; }
-  .snoopy-frame { width: 110px; }
+  .mini-card { height: 100px; }
+  .card-emoji { font-size: 24px; }
+  .snoopy-frame { width: 120px; }
 }
 </style>
 </head>
