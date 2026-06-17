@@ -1,0 +1,477 @@
+@import url('https://fonts.googleapis.com/css2?family=Patrick+Hand&display=swap');
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    width: 100%;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #FDF6E4 0%, #FFF8E7 100%);
+    font-family: 'Patrick Hand', cursive;
+    overflow: hidden;
+    position: relative;
+}
+
+/* Fondo con palabras animadas */
+.background-words {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+    overflow: hidden;
+}
+
+.background-words span {
+    position: absolute;
+    bottom: -150px;
+    font-family: 'Patrick Hand', cursive;
+    font-size: 22px;
+    color: rgba(45, 45, 45, 0.25);
+    animation: floatUp 15s linear infinite;
+    white-space: nowrap;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+/* Palabras con variaciones de estilo */
+.background-words span:nth-child(odd) {
+    color: rgba(217, 42, 42, 0.25);
+}
+
+/* Contenedor principal */
+.login-container {
+    position: relative;
+    z-index: 2;
+    background: rgba(255, 255, 255, 0.98);
+    padding: 70px 45px 45px 45px;
+    border-radius: 40px;
+    border: 3px solid #D92A2A;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15), 0 0 0 8px rgba(217, 42, 42, 0.1);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 90%;
+    max-width: 420px;
+    animation: popIn 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+    transition: all 0.3s ease;
+}
+
+/* SNOOPY - IMAGEN PERSONALIZADA */
+.snoopy-header {
+    position: absolute;
+    top: -120px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 160px;
+    height: 160px;
+    background-image: url('img/snoopy.png');
+    background-size: contain;
+    background-position: center;
+    background-repeat: no-repeat;
+    z-index: 3;
+    animation: bounceIn 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) 0.3s backwards, floatSnoopy 3s ease-in-out infinite;
+    filter: drop-shadow(0 8px 15px rgba(0, 0, 0, 0.2));
+    cursor: pointer;
+    transition: transform 0.3s ease;
+}
+
+.snoopy-header:hover {
+    transform: translateX(-50%) scale(1.05);
+}
+
+/* Woodstock decorativo mejorado */
+.woodstock-decoration {
+    position: absolute;
+    top: -30px;
+    right: -25px;
+    width: 70px;
+    height: 70px;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 50 50'%3E%3Cpath fill='%23FFD700' stroke='%23E6B800' stroke-width='2' d='M25 5 C35 5 40 15 40 25 S35 45 25 45 S10 35 10 25 S15 5 25 5'/%3E%3Ccircle fill='%23000' cx='30' cy='20' r='2.5'/%3E%3Cpath fill='%23FFD700' d='M25 5 Q20 0 15 5'/%3E%3Cpath fill='%23FFA500' d='M20 30 L25 38 L30 30 Z'/%3E%3C/svg%3E");
+    background-size: contain;
+    transform: rotate(15deg);
+    animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) 0.8s backwards, wiggle 4s ease-in-out infinite;
+    filter: drop-shadow(0 4px 8px rgba(0,0,0,0.2));
+}
+
+/* Título mejorado */
+.title {
+    color: #D92A2A;
+    font-size: 2.5rem;
+    margin-top: 20px;
+    margin-bottom: 35px;
+    text-align: center;
+    animation: fadeInSlideUp 0.6s ease-out 0.6s backwards;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+    position: relative;
+    display: inline-block;
+}
+
+.title::after {
+    content: '❤️';
+    position: absolute;
+    right: -35px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 1.8rem;
+    animation: heartbeat 1.5s ease-in-out infinite;
+}
+
+/* Formulario mejorado */
+#login-form {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.input-group {
+    position: relative;
+    margin-bottom: 40px;
+    width: 100%;
+    animation: fadeInSlideUp 0.6s ease-out backwards;
+}
+
+.input-group:nth-of-type(1) { animation-delay: 0.7s; }
+.input-group:nth-of-type(2) { animation-delay: 0.8s; }
+
+.input-group input {
+    width: 100%;
+    padding: 14px 15px;
+    font-size: 1.2rem;
+    color: #333;
+    background: #fff;
+    border: 2px solid #E0E0E0;
+    border-radius: 15px;
+    outline: none;
+    transition: all 0.3s ease;
+    font-family: 'Patrick Hand', cursive;
+}
+
+.input-group input:focus {
+    border-color: #D92A2A;
+    box-shadow: 0 0 0 4px rgba(217, 42, 42, 0.2);
+    transform: translateY(-2px);
+}
+
+.input-group label {
+    position: absolute;
+    top: 14px;
+    left: 15px;
+    font-size: 1.2rem;
+    color: #999;
+    background: #fff;
+    padding: 0 5px;
+    pointer-events: none;
+    transition: 0.3s ease-out;
+}
+
+.input-group input:focus + label,
+.input-group input:valid + label {
+    top: -12px;
+    font-size: 0.9rem;
+    color: #D92A2A;
+    font-weight: 700;
+    background: #fff;
+}
+
+/* Botón mejorado */
+.custom-button {
+    background: linear-gradient(135deg, #D92A2A 0%, #B81C1C 100%);
+    border: none;
+    padding: 14px 40px;
+    font-size: 1.3rem;
+    cursor: pointer;
+    border-radius: 50px;
+    color: #fff;
+    font-weight: bold;
+    font-family: 'Patrick Hand', cursive;
+    transition: all 0.3s ease-in-out;
+    box-shadow: 0 6px 0 #8B1A1A;
+    margin-top: 10px;
+    letter-spacing: 1px;
+}
+
+.custom-button:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 9px 0 #8B1A1A;
+    background: linear-gradient(135deg, #E63E3E 0%, #C91F1F 100%);
+}
+
+.custom-button:active {
+    transform: translateY(3px);
+    box-shadow: 0 3px 0 #8B1A1A;
+}
+
+/* Mensaje de error mejorado */
+.error-message {
+    color: #D32F2F;
+    margin-top: 20px;
+    min-height: 40px;
+    font-size: 1rem;
+    font-weight: 700;
+    text-align: center;
+    background: rgba(211, 47, 47, 0.1);
+    padding: 8px 15px;
+    border-radius: 25px;
+    animation: shake 0.5s;
+}
+
+/* Loader mejorado */
+.hidden {
+    display: none !important;
+}
+
+.loader-container {
+    z-index: 20;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 90%;
+    max-width: 350px;
+    text-align: center;
+    background: rgba(255, 255, 255, 0.95);
+    padding: 40px;
+    border-radius: 50px;
+    border: 3px solid #D92A2A;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+    animation: popIn 0.5s ease-out forwards;
+}
+
+.loader-container p {
+    color: #D92A2A;
+    font-size: 1.5rem;
+    margin: 20px 0;
+    font-weight: bold;
+}
+
+.loader-woodstock-fly {
+    position: relative;
+    width: 100%;
+    height: 80px;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 50 50'%3E%3Cpath fill='%23FFD700' d='M25 5 C35 5 40 15 40 25 S35 45 25 45 S10 35 10 25 S15 5 25 5'/%3E%3Ccircle fill='%23000' cx='30' cy='20' r='2.5'/%3E%3Cpath fill='%23FFD700' d='M25 5 Q20 0 15 5'/%3E%3Cpath fill='%23FFA500' d='M20 30 L25 38 L30 30 Z'/%3E%3C/svg%3E");
+    background-size: 50px;
+    background-repeat: no-repeat;
+    animation: flyAcross 2.5s ease-in-out 0.5s forwards, flapWings 0.3s ease-in-out infinite;
+}
+
+.loader-bar {
+    width: 100%;
+    height: 25px;
+    background-color: #f0f0f0;
+    border: 3px solid #D92A2A;
+    border-radius: 25px;
+    overflow: hidden;
+    margin-top: 10px;
+}
+
+.loader-progress {
+    width: 0%;
+    height: 100%;
+    background: linear-gradient(90deg, #D92A2A, #FF6B6B);
+    border-radius: 25px;
+    animation: fillBar 2.5s ease-in-out 0.5s forwards;
+}
+
+/* Animaciones mejoradas */
+@keyframes floatUp {
+    0% {
+        transform: translateY(0) rotate(-5deg);
+        opacity: 0;
+    }
+    10% {
+        opacity: 1;
+    }
+    90% {
+        opacity: 1;
+    }
+    100% {
+        transform: translateY(-100vh) rotate(5deg);
+        opacity: 0;
+    }
+}
+
+@keyframes popIn {
+    from {
+        opacity: 0;
+        transform: scale(0.8);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+@keyframes bounceIn {
+    0% {
+        opacity: 0;
+        transform: translateX(-50%) scale(0.3);
+    }
+    50% {
+        transform: translateX(-50%) scale(1.1);
+    }
+    100% {
+        opacity: 1;
+        transform: translateX(-50%) scale(1);
+    }
+}
+
+@keyframes floatSnoopy {
+    0%, 100% {
+        transform: translateX(-50%) translateY(0px);
+    }
+    50% {
+        transform: translateX(-50%) translateY(-8px);
+    }
+}
+
+@keyframes fadeInSlideUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes flyAcross {
+    0% {
+        background-position: -50px 50%;
+    }
+    100% {
+        background-position: 110% 50%;
+    }
+}
+
+@keyframes fillBar {
+    from {
+        width: 0%;
+    }
+    to {
+        width: 100%;
+    }
+}
+
+@keyframes fadeOut {
+    from {
+        opacity: 1;
+        transform: scale(1);
+    }
+    to {
+        opacity: 0;
+        transform: scale(0.8);
+    }
+}
+
+@keyframes shake {
+    0%, 100% {
+        transform: translateX(0);
+    }
+    10%, 30%, 50%, 70%, 90% {
+        transform: translateX(-8px);
+    }
+    20%, 40%, 60%, 80% {
+        transform: translateX(8px);
+    }
+}
+
+@keyframes heartbeat {
+    0%, 100% {
+        transform: translateY(-50%) scale(1);
+    }
+    50% {
+        transform: translateY(-50%) scale(1.2);
+    }
+}
+
+@keyframes wiggle {
+    0%, 100% {
+        transform: rotate(15deg) translateY(0);
+    }
+    50% {
+        transform: rotate(20deg) translateY(-5px);
+    }
+}
+
+@keyframes flapWings {
+    0%, 100% {
+        background-size: 50px;
+    }
+    50% {
+        background-size: 55px;
+    }
+}
+
+.fade-in {
+    animation: popIn 0.5s ease-out forwards;
+}
+
+.fade-out {
+    animation: fadeOut 0.5s ease-in forwards;
+}
+
+/* Responsive mejorado */
+@media screen and (max-width: 574px) {
+    .title {
+        font-size: 1.8rem;
+    }
+    
+    .title::after {
+        right: -25px;
+        font-size: 1.2rem;
+    }
+    
+    .login-container {
+        max-width: 340px;
+        padding: 60px 25px 30px 25px;
+    }
+    
+    .snoopy-header {
+        top: -100px;
+        width: 130px;
+        height: 130px;
+    }
+    
+    .woodstock-decoration {
+        width: 55px;
+        height: 55px;
+        top: -20px;
+        right: -15px;
+    }
+    
+    .background-words span {
+        font-size: 16px;
+    }
+    
+    .background-words span:nth-child(2),
+    .background-words span:nth-child(9),
+    .background-words span:nth-child(13) {
+        font-size: 20px;
+    }
+    
+    /* Ocultar palabras para móvil */
+    .background-words span:nth-child(even),
+    .background-words span:nth-child(5),
+    .background-words span:nth-child(15),
+    .background-words span:nth-child(19) {
+        display: none;
+    }
+    
+    .custom-button {
+        padding: 12px 30px;
+        font-size: 1.1rem;
+    }
+    
+    .loader-container p {
+        font-size: 1.2rem;
+    }
+}

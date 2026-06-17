@@ -1,0 +1,942 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Juego de Preguntas - Especial para ti</title>
+    <link href="https://fonts.googleapis.com/css2?family=Patrick+Hand&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            width: 100%;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #1a0033 0%, #0c001a 100%);
+            font-family: 'Patrick Hand', cursive;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        .stars {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .star {
+            position: absolute;
+            background-color: rgba(255, 255, 255, 0.6);
+            border-radius: 50%;
+            opacity: 0;
+            animation: twinkle 3s infinite;
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 0; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(1.2); }
+        }
+
+        .floating-hearts {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+            overflow: hidden;
+        }
+
+        .heart {
+            position: absolute;
+            bottom: -50px;
+            font-size: 20px;
+            opacity: 0;
+            animation: floatHeart 8s linear infinite;
+        }
+
+        @keyframes floatHeart {
+            0% { transform: translateY(0) rotate(0deg); opacity: 0; }
+            10% { opacity: 0.8; }
+            90% { opacity: 0.8; }
+            100% { transform: translateY(-100vh) rotate(360deg); opacity: 0; }
+        }
+
+        .game-container {
+            position: relative;
+            z-index: 10;
+            background: rgba(255, 245, 250, 0.98);
+            border-radius: 50px;
+            border: 3px solid #FF69B4;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3), 0 0 0 8px rgba(255, 105, 180, 0.2);
+            width: 100%;
+            max-width: 700px;
+            overflow: hidden;
+            animation: popIn 0.6s ease-out;
+        }
+
+        @keyframes popIn {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .game-header {
+            background: linear-gradient(135deg, #FF69B4, #FF1493);
+            padding: 25px;
+            text-align: center;
+            color: white;
+        }
+
+        .game-header h1 {
+            font-size: 2rem;
+            letter-spacing: 2px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .game-header p {
+            font-size: 1.1rem;
+            margin-top: 8px;
+            opacity: 0.9;
+        }
+
+        .game-info {
+            display: flex;
+            justify-content: space-between;
+            padding: 15px 25px;
+            background: rgba(255, 105, 180, 0.1);
+            border-bottom: 2px solid #FF69B4;
+        }
+
+        .score-box, .question-counter {
+            background: white;
+            padding: 8px 20px;
+            border-radius: 30px;
+            color: #FF1493;
+            font-weight: bold;
+            font-size: 1.2rem;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .question-area {
+            padding: 35px 30px;
+            min-height: 450px;
+        }
+
+        .question-text {
+            font-size: 1.6rem;
+            color: #333;
+            text-align: center;
+            margin-bottom: 35px;
+            line-height: 1.3;
+        }
+
+        .options-container {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .option-btn {
+            background: white;
+            border: 2px solid #FF69B4;
+            padding: 15px 20px;
+            border-radius: 60px;
+            font-size: 1.1rem;
+            font-family: 'Patrick Hand', cursive;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: left;
+            color: #333;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .option-prefix {
+            background: #FF69B4;
+            color: white;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+
+        .option-btn:hover {
+            transform: translateX(10px);
+            background: #FFF0F5;
+            border-color: #FF1493;
+        }
+
+        .option-btn.correct {
+            background: #4CAF50;
+            border-color: #2E7D32;
+            color: white;
+        }
+
+        .option-btn.correct .option-prefix {
+            background: #2E7D32;
+        }
+
+        .option-btn.wrong {
+            background: #f44336;
+            border-color: #c62828;
+            color: white;
+        }
+
+        .option-btn.wrong .option-prefix {
+            background: #c62828;
+        }
+
+        .option-btn.disabled {
+            pointer-events: none;
+            opacity: 0.8;
+        }
+
+        .open-input {
+            width: 100%;
+            padding: 15px 20px;
+            font-size: 1.1rem;
+            font-family: 'Patrick Hand', cursive;
+            border: 2px solid #FF69B4;
+            border-radius: 30px;
+            outline: none;
+            background: white;
+            color: #333;
+            margin-bottom: 20px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .open-input:focus {
+            border-color: #FF1493;
+            box-shadow: 0 0 0 3px rgba(255, 105, 180, 0.3);
+        }
+
+        .auto-save-hint {
+            text-align: center;
+            color: #FF69B4;
+            font-size: 0.85rem;
+            margin-top: 10px;
+            margin-bottom: 15px;
+        }
+
+        .next-btn {
+            background: linear-gradient(135deg, #FF69B4, #FF1493);
+            border: none;
+            padding: 14px 35px;
+            font-size: 1.3rem;
+            font-family: 'Patrick Hand', cursive;
+            color: white;
+            font-weight: bold;
+            border-radius: 50px;
+            cursor: pointer;
+            width: 100%;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 0 #B8126E;
+            margin-top: 15px;
+        }
+
+        .next-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 7px 0 #B8126E;
+        }
+
+        .result-area {
+            text-align: center;
+            padding: 40px;
+        }
+
+        .result-score {
+            font-size: 2rem;
+            color: #FF1493;
+            margin: 15px 0;
+        }
+
+        .result-message {
+            font-size: 1.3rem;
+            color: #333;
+            margin-bottom: 25px;
+        }
+
+        .answers-summary {
+            background: rgba(255, 105, 180, 0.1);
+            border-radius: 30px;
+            padding: 20px;
+            margin: 20px 0;
+            text-align: left;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .answers-summary h3 {
+            color: #FF1493;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .answer-item {
+            padding: 10px;
+            border-bottom: 1px dashed #FF69B4;
+            margin-bottom: 8px;
+        }
+
+        .answer-question {
+            font-weight: bold;
+            color: #D9006C;
+        }
+
+        .answer-text {
+            color: #333;
+            margin-top: 5px;
+            font-style: italic;
+        }
+
+        .whatsapp-btn {
+            background: #25D366;
+            border: none;
+            padding: 14px 30px;
+            font-size: 1.2rem;
+            font-family: 'Patrick Hand', cursive;
+            color: white;
+            font-weight: bold;
+            border-radius: 50px;
+            cursor: pointer;
+            margin: 10px;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .whatsapp-btn:hover {
+            transform: scale(1.05);
+            background: #128C7E;
+        }
+
+        .play-again-btn, .back-btn {
+            background: linear-gradient(135deg, #FF69B4, #FF1493);
+            border: none;
+            padding: 12px 30px;
+            font-size: 1.2rem;
+            font-family: 'Patrick Hand', cursive;
+            color: white;
+            font-weight: bold;
+            border-radius: 50px;
+            cursor: pointer;
+            margin: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        @keyframes fadeOut {
+            0% { opacity: 1; }
+            70% { opacity: 1; }
+            100% { opacity: 0; visibility: hidden; }
+        }
+
+        @media (max-width: 600px) {
+            .game-header h1 { font-size: 1.5rem; }
+            .question-text { font-size: 1.2rem; }
+            .option-btn { font-size: 0.9rem; padding: 12px 15px; }
+            .option-prefix { width: 28px; height: 28px; font-size: 1rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="stars" id="stars"></div>
+    <div class="floating-hearts" id="floatingHearts"></div>
+
+    <div class="game-container">
+        <div class="game-header">
+            <h1>🌸 Preguntas para Ti 🌸</h1>
+            <p>Responde con el corazón ❤️</p>
+        </div>
+
+        <div class="game-info">
+            <div class="score-box" id="scoreDisplay">Puntuación: 0</div>
+            <div class="question-counter" id="counterDisplay">Pregunta 1 / 10</div>
+        </div>
+
+        <div id="quizArea" class="question-area">
+            <div class="question-text" id="questionText">Cargando pregunta...</div>
+            <div id="optionsContainer"></div>
+            <button class="next-btn hidden" id="nextBtn">Siguiente Pregunta →</button>
+        </div>
+
+        <div id="resultArea" class="result-area hidden">
+            <div class="result-score" id="finalScore">0 / 50</div>
+            <div class="result-message" id="resultMessage"></div>
+            
+            <div id="answersSummary" class="answers-summary hidden">
+                <h3>📝 Tus respuestas especiales</h3>
+                <div id="answersList"></div>
+            </div>
+            
+            <button class="whatsapp-btn" id="whatsappBtn" onclick="enviarWhatsApp()">
+                💬 Enviar respuestas a WhatsApp
+            </button>
+            <br>
+            <button class="play-again-btn" onclick="reiniciarJuego()">🎮 Jugar de Nuevo</button>
+            <button class="back-btn" onclick="window.location.href='FLORES.html'">← Volver a Juegos</button>
+        </div>
+    </div>
+
+    <script>
+        // ==================== CONFIGURACIÓN ====================
+        // CAMBIA ESTE NÚMERO POR TU NÚMERO DE WHATSAPP (con código país)
+        // Ejemplo: "521234567890" para México +52 1234567890
+        const MI_NUMERO_WHATSAPP = "521234567890"; // 🔴 ¡CAMBIA ESTO POR TU NÚMERO!
+        
+        // ==================== PREGUNTAS ====================
+        const preguntas = [
+    // PREGUNTAS DE OPCIÓN MÚLTIPLE (suman puntos)
+    {
+        tipo: "multiple",
+        texto: "¿Cuando es nuestro aniversario?",
+        opciones: ["14 de Febrero", "22 de Agosto", "8 de enero", "28 de julio"],
+        correcta: 1
+    },
+    {
+        tipo: "multiple",
+        texto: "¿Cual es mi color favorito?",
+        opciones: ["rojo", "Azul", "verde", "negro"],
+        correcta: 0
+    },
+    {
+        tipo: "multiple",
+        texto: "¿cual es mi comida favorita?",
+        opciones: ["Asado", "Ceviche", "Arroz chaufa", "Tus Pechos :3"],
+        correcta: 3
+    },
+    {
+        tipo: "multiple",
+        texto: "¿Qué es lo que más te gusta de nuestra relación?",
+        opciones: ["La confianza", "Cómo nos apoyamos", "La comunicación", "Todo me gusta"],
+        correcta: 3
+    },
+    {
+        tipo: "multiple",
+        texto: "¿como se llama mi perro?",
+        opciones: ["lizeth", "sacho", "zeus", "kelly"],
+        correcta: 1
+    },
+    // PREGUNTAS ABIERTAS (se guardan automáticamente al escribir)
+    {
+        tipo: "open",
+        texto: "¿Qué puntuación me darías del 1 al 10?",
+        respuesta: ""
+    },
+    {
+        tipo: "open",
+        texto: "Del 1 al 10 ¿cuánta importancia tiene para ti el aspecto físico?",
+        respuesta: ""
+    },
+    {
+        tipo: "open",
+        texto: "¿Qué puntuación te darías tú del 1 al 10?",
+        respuesta: ""
+    },
+    {
+        tipo: "open",
+        texto: "¿Qué parte de tu cuerpo te gusta más?",
+        respuesta: ""
+    },
+    {
+        tipo: "open",
+        texto: "¿Qué sería lo primero que harías si estuvieras en el cuerpo de un hombre solo por un día?",
+        respuesta: ""
+    },
+    {
+        tipo: "open",
+        texto: "¿cual es tu concepto y opinion de mi?",
+        respuesta: ""
+    },
+    {
+        tipo: "open",
+        texto: "¿cual es tu cancion favorita?",
+        respuesta: ""
+    },
+    {
+        tipo: "open",
+        texto: "¿De qué parte de tu cuerpo estás más orgullosa?",
+        respuesta: ""
+    },
+    {
+        tipo: "open",
+        texto: "¿Qué es lo que te anima a dar el primer paso?",
+        respuesta: ""
+    },
+    {
+        tipo: "open",
+        texto: "describe a tu hombre ideal o lo que mas te gustaria de un hombre",
+        respuesta: ""
+    },
+    {
+        tipo: "open",
+        texto: "¿Beso seco, con lengua, húmedo o mojado?",
+        respuesta: ""
+    },
+    {
+        tipo: "open",
+        texto: "¿Cual es tu pelicula favorita?",
+        respuesta: ""
+    },
+    {
+        tipo: "open",
+        texto: "¿que pensaste de mi cuando te escribi por primera vez?",
+        respuesta: ""
+    },
+    {
+        tipo: "open",
+        texto: "¿Qué crees que es lo que más me gusta de ti?",
+        respuesta: ""
+    },
+    {
+        tipo: "open",
+        texto: "¿Cómo quieres que sea tu futuro?",
+        respuesta: ""
+    },
+    {
+        tipo: "open",
+        texto: "¿Te asusta la idea de hacerte mayor?",
+        respuesta: ""
+    },
+    {
+        tipo: "open",
+        texto: "¿Cómo fue tu infancia?",
+        respuesta: ""
+    },
+    {
+        tipo: "open",
+        texto: "¿Qué haces cuando estás estresada? (tratarme mal, dejarme en visto, hablar con otro)",
+        respuesta: ""
+    },
+    {
+        tipo: "open",
+        texto: "¿Cuál es tu lugar feliz?",
+        respuesta: ""
+    },
+    {
+        tipo: "open",
+        texto: "¿Cuál es tu mayor miedo?",
+        respuesta: ""
+    },
+    {
+        tipo: "open",
+        texto: "¿Tienes algún recuerdo favorito de tu infancia?",
+        respuesta: ""
+    },
+    {
+        tipo: "open",
+        texto: "¿Cuál consideras tu mayor logro hasta la fecha?",
+        respuesta: ""
+    },
+    {
+        tipo: "open",
+        texto: "¿Qué te gustaría que la gente supiera de ti?",
+        respuesta: ""
+    },
+    {
+        tipo: "open",
+        texto: "¿Qué crees que es el amor?",
+        respuesta: ""
+    },
+    {
+        tipo: "open",
+        texto: "¿Hay alguna pregunta que siempre hayas querido hacerme?",
+        respuesta: ""
+    },
+    {
+        tipo: "open",
+        texto: "¿Qué te hace sentir segura?",
+        respuesta: ""
+    },
+    {
+        tipo: "open",
+        texto: "En tu opinión, ¿qué es lo más atractivo que puede hacer alguien?",
+        respuesta: ""
+    },
+    {
+        tipo: "open",
+        texto: "¿Prefieres las citas elegantes o las salidas informales?",
+        respuesta: ""
+    },
+    {
+        tipo: "open",
+        texto: "¿Qué sientes cuando te enamoras?",
+        respuesta: ""
+    },
+    {
+        tipo: "open",
+        texto: "¿Cómo contarías nuestra historia de amor?",
+        respuesta: ""
+    },
+    {
+        tipo: "open",
+        texto: "¿Cómo ves nuestro futuro?",
+        respuesta: ""
+    },
+    {
+        tipo: "open",
+        texto: "¿Cuál es tu parte favorita de nuestra relación? ¿Y la que menos?",
+        respuesta: ""
+    },
+    {
+        tipo: "open",
+        texto: "Si pudieras vivir en cualquier parte del mundo, ¿dónde elegirías?",
+        respuesta: ""
+    },
+    {
+        tipo: "open",
+        texto: "¿Cuál es tu lista de deseos? puede ser material, ficticio o etc",
+        respuesta: ""
+    },
+    {
+        tipo: "open",
+        texto: "Si pudieras tener cualquier tipo de mascota, ¿cuál elegirías?",
+        respuesta: ""
+    },
+    {
+        tipo: "open",
+        texto: "¿Gatos o perros?",
+        respuesta: ""
+    },
+    {
+        tipo: "open",
+        texto: "estoy cansado :( dame tta",
+        respuesta: ""
+    }
+];
+
+        let currentQuestion = 0;
+        let score = 0;
+        let answered = false;
+        let currentOpenInput = null;
+
+        let openAnswers = [];
+
+        const quizArea = document.getElementById('quizArea');
+        const resultArea = document.getElementById('resultArea');
+        const questionText = document.getElementById('questionText');
+        const optionsContainer = document.getElementById('optionsContainer');
+        const nextBtn = document.getElementById('nextBtn');
+        const scoreDisplay = document.getElementById('scoreDisplay');
+        const counterDisplay = document.getElementById('counterDisplay');
+        const finalScore = document.getElementById('finalScore');
+        const resultMessage = document.getElementById('resultMessage');
+        const answersSummary = document.getElementById('answersSummary');
+        const answersList = document.getElementById('answersList');
+
+        function createHearts() {
+            const heartsContainer = document.getElementById('floatingHearts');
+            for (let i = 0; i < 30; i++) {
+                const heart = document.createElement('div');
+                heart.classList.add('heart');
+                heart.innerHTML = ['❤️', '💖', '💗', '💓', '🌸', '🌺', '💕', '💝'][Math.floor(Math.random() * 8)];
+                heart.style.left = Math.random() * 100 + '%';
+                heart.style.animationDuration = 6 + Math.random() * 4 + 's';
+                heart.style.animationDelay = Math.random() * 5 + 's';
+                heart.style.fontSize = 15 + Math.random() * 20 + 'px';
+                heartsContainer.appendChild(heart);
+            }
+        }
+
+        function createStars() {
+            const starsContainer = document.getElementById('stars');
+            for (let i = 0; i < 100; i++) {
+                const star = document.createElement('div');
+                star.classList.add('star');
+                star.style.left = Math.random() * 100 + '%';
+                star.style.top = Math.random() * 100 + '%';
+                star.style.width = Math.random() * 3 + 1 + 'px';
+                star.style.height = star.style.width;
+                star.style.animationDelay = Math.random() * 3 + 's';
+                star.style.animationDuration = Math.random() * 2 + 1 + 's';
+                starsContainer.appendChild(star);
+            }
+        }
+
+        function mostrarPregunta() {
+            answered = false;
+            const pregunta = preguntas[currentQuestion];
+            questionText.textContent = pregunta.texto;
+            optionsContainer.innerHTML = '';
+            nextBtn.classList.add('hidden');
+            counterDisplay.textContent = `Pregunta ${currentQuestion + 1} / ${preguntas.length}`;
+
+            if (pregunta.tipo === "multiple") {
+                const letras = ['A', 'B', 'C', 'D'];
+                pregunta.opciones.forEach((opcion, index) => {
+                    const btn = document.createElement('button');
+                    btn.className = 'option-btn';
+                    btn.innerHTML = `
+                        <span class="option-prefix">${letras[index]}</span>
+                        <span>${opcion}</span>
+                    `;
+                    btn.onclick = () => seleccionarRespuestaMultiple(index);
+                    optionsContainer.appendChild(btn);
+                });
+            } else {
+                const input = document.createElement('input');
+                input.type = 'text';
+                input.className = 'open-input';
+                input.placeholder = 'Escribe aquí tu respuesta';
+                input.value = pregunta.respuesta || '';
+                
+                let timeoutId;
+                input.addEventListener('input', () => {
+                    if (timeoutId) clearTimeout(timeoutId);
+                    timeoutId = setTimeout(() => {
+                        guardarRespuestaAutomatica(input.value);
+                    }, 300);
+                });
+                
+                input.addEventListener('blur', () => {
+                    guardarRespuestaAutomatica(input.value);
+                });
+                
+                const hint = document.createElement('div');
+                hint.className = 'auto-save-hint';
+                hint.innerHTML = '✨ Tus respuestas se guardan automáticamente ✨';
+                
+                optionsContainer.appendChild(input);
+                optionsContainer.appendChild(hint);
+                currentOpenInput = input;
+                
+                if (pregunta.respuesta && pregunta.respuesta.trim() !== "") {
+                    mostrarSiguienteOpen();
+                }
+            }
+        }
+
+        function guardarRespuestaAutomatica(respuesta) {
+            const pregunta = preguntas[currentQuestion];
+            if (pregunta.tipo !== "open") return;
+            
+            pregunta.respuesta = respuesta;
+            
+            const hint = document.querySelector('.auto-save-hint');
+            if (hint) {
+                hint.innerHTML = '💾 ¡Respuesta guardada! 💾';
+                setTimeout(() => {
+                    if (hint) hint.innerHTML = '✨ Tus respuestas se guardan automáticamente ✨';
+                }, 1000);
+            }
+            
+            if (respuesta.trim() !== "" && !answered) {
+                mostrarSiguienteOpen();
+            } else if (respuesta.trim() === "" && answered) {
+                answered = false;
+                nextBtn.classList.add('hidden');
+            }
+        }
+
+        function mostrarSiguienteOpen() {
+            if (answered) return;
+            
+            const pregunta = preguntas[currentQuestion];
+            if (!pregunta.respuesta || pregunta.respuesta.trim() === "") return;
+            
+            answered = true;
+            
+            const existingIndex = openAnswers.findIndex(a => a.pregunta === pregunta.texto);
+            if (existingIndex !== -1) {
+                openAnswers[existingIndex].respuesta = pregunta.respuesta;
+            } else {
+                openAnswers.push({
+                    pregunta: pregunta.texto,
+                    respuesta: pregunta.respuesta
+                });
+            }
+            
+            crearEfectoGuardado();
+            nextBtn.classList.remove('hidden');
+        }
+
+        function seleccionarRespuestaMultiple(selectedIndex) {
+            if (answered) return;
+            
+            answered = true;
+            const pregunta = preguntas[currentQuestion];
+            const esCorrecta = (selectedIndex === pregunta.correcta);
+            
+            const opciones = document.querySelectorAll('.option-btn');
+            opciones.forEach((btn, idx) => {
+                btn.classList.add('disabled');
+                if (idx === pregunta.correcta) {
+                    btn.classList.add('correct');
+                }
+                if (idx === selectedIndex && !esCorrecta) {
+                    btn.classList.add('wrong');
+                }
+            });
+            
+            if (esCorrecta) {
+                score += 10;
+                scoreDisplay.textContent = `Puntuación: ${score}`;
+                crearEfectoCorrecto();
+            } else {
+                crearEfectoIncorrecto();
+            }
+            
+            nextBtn.classList.remove('hidden');
+        }
+
+        function crearEfectoCorrecto() {
+            const heart = document.createElement('div');
+            heart.innerHTML = '🎉💖';
+            heart.style.position = 'fixed';
+            heart.style.left = '50%';
+            heart.style.top = '50%';
+            heart.style.fontSize = '3rem';
+            heart.style.transform = 'translate(-50%, -50%)';
+            heart.style.zIndex = '100';
+            heart.style.animation = 'popIn 0.5s ease-out forwards';
+            document.body.appendChild(heart);
+            setTimeout(() => heart.remove(), 500);
+        }
+
+        function crearEfectoIncorrecto() {
+            const x = document.createElement('div');
+            x.innerHTML = '😢💕';
+            x.style.position = 'fixed';
+            x.style.left = '50%';
+            x.style.top = '50%';
+            x.style.fontSize = '3rem';
+            x.style.transform = 'translate(-50%, -50%)';
+            x.style.zIndex = '100';
+            x.style.animation = 'popIn 0.5s ease-out forwards';
+            document.body.appendChild(x);
+            setTimeout(() => x.remove(), 500);
+        }
+
+        function crearEfectoGuardado() {
+            const save = document.createElement('div');
+            save.innerHTML = '💾✨ ¡Guardado! ✨💾';
+            save.style.position = 'fixed';
+            save.style.bottom = '20px';
+            save.style.right = '20px';
+            save.style.fontSize = '0.9rem';
+            save.style.background = '#4CAF50';
+            save.style.color = 'white';
+            save.style.padding = '8px 15px';
+            save.style.borderRadius = '30px';
+            save.style.zIndex = '100';
+            save.style.animation = 'fadeOut 1.5s ease-out forwards';
+            document.body.appendChild(save);
+            setTimeout(() => save.remove(), 1500);
+        }
+
+        function siguientePregunta() {
+            currentQuestion++;
+            if (currentQuestion < preguntas.length) {
+                mostrarPregunta();
+            } else {
+                mostrarResultado();
+            }
+        }
+
+        function mostrarResultado() {
+            quizArea.classList.add('hidden');
+            resultArea.classList.remove('hidden');
+            
+            const maxScore = preguntas.filter(p => p.tipo === "multiple").length * 10;
+            finalScore.textContent = `${score} / ${maxScore}`;
+            
+            let mensaje = "";
+            if (score === maxScore) {
+                mensaje = "💖 ¡PERFECTO! 💖 Me conoces como nadie. ¡TE AMO! 🌟";
+            } else if (score >= maxScore * 0.8) {
+                mensaje = "🌸 ¡HERMOSO! 🌸 Me encanta que me conozcas tanto. ¡Eres increíble! 💗";
+            } else if (score >= maxScore * 0.6) {
+                mensaje = "💗 ¡MUY BIEN! 💗 Lo bonito es que tenemos toda una vida para seguir conociéndonos. 💕";
+            } else {
+                mensaje = "💝 ¡NO TE PREOCUPES, MI AMOR! 💝 Lo que importa es cuánto nos queremos. ¡TE AMO! 🥰";
+            }
+            
+            resultMessage.textContent = mensaje;
+            
+            if (openAnswers.length > 0) {
+                answersSummary.classList.remove('hidden');
+                let html = '';
+                openAnswers.forEach((item, index) => {
+                    if (item.respuesta && item.respuesta.trim() !== "") {
+                        html += `
+                            <div class="answer-item">
+                                <div class="answer-question">${index + 1}. ${item.pregunta}</div>
+                                <div class="answer-text">💬 ${item.respuesta}</div>
+                            </div>
+                        `;
+                    }
+                });
+                answersList.innerHTML = html;
+            }
+        }
+
+        function enviarWhatsApp() {
+            // Mensaje limpio sin caracteres raros
+            let mensaje = "🌸 RESPUESTAS DEL JUEGO 🌸\n\n";
+            mensaje += `📊 Puntuación: ${score} puntos\n\n`;
+            mensaje += "💖 TUS RESPUESTAS ESPECIALES 💖\n\n";
+            
+            let contador = 1;
+            openAnswers.forEach((item) => {
+                if (item.respuesta && item.respuesta.trim() !== "") {
+                    mensaje += `${contador}. ${item.pregunta}\n`;
+                    mensaje += `   ✨ "${item.respuesta}"\n\n`;
+                    contador++;
+                }
+            });
+            
+            mensaje += "—————————————\n";
+            mensaje += "💕 Gracias por jugar, mi amor. ¡Te amo muchísimo! 💕";
+            
+            const mensajeCodificado = encodeURIComponent(mensaje);
+            window.open(`https://wa.me/${MI_NUMERO_WHATSAPP}?text=${mensajeCodificado}`, '_blank');
+        }
+
+        function reiniciarJuego() {
+            currentQuestion = 0;
+            score = 0;
+            answered = false;
+            openAnswers = [];
+            preguntas.forEach(p => { if (p.tipo === "open") p.respuesta = ""; });
+            scoreDisplay.textContent = `Puntuación: 0`;
+            
+            quizArea.classList.remove('hidden');
+            resultArea.classList.add('hidden');
+            answersSummary.classList.add('hidden');
+            
+            mostrarPregunta();
+        }
+
+        nextBtn.onclick = siguientePregunta;
+
+        createStars();
+        createHearts();
+        mostrarPregunta();
+    </script>
+</body>
+</html>

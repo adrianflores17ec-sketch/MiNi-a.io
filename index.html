@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Memoria</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0d0d0d;
+            --card-bg: #141414;
+            --text-dim: #555555;
+            --text-main: #a0a0a0;
+            --border: #222222;
+            --accent: #333333;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text-main);
+            font-family: 'Inter', sans-serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 400px;
+            padding: 20px;
+            text-align: center;
+            animation: fadeIn 2s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        h1 {
+            font-weight: 200;
+            font-size: 0.9rem;
+            letter-spacing: 5px;
+            text-transform: uppercase;
+            margin-bottom: 60px;
+            color: var(--text-dim);
+        }
+
+        .user-field {
+            font-size: 0.8rem;
+            color: var(--text-dim);
+            margin-bottom: 40px;
+            border-bottom: 1px solid var(--border);
+            display: inline-block;
+            padding-bottom: 5px;
+            letter-spacing: 1px;
+        }
+
+        .date-input-container {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 50px;
+        }
+
+        .digit-box {
+            width: 45px;
+            height: 60px;
+            background: transparent;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            color: var(--text-main);
+            font-size: 1.5rem;
+            text-align: center;
+            font-family: 'Inter', sans-serif;
+            font-weight: 200;
+            outline: none;
+            transition: all 0.4s;
+        }
+
+        .digit-box:focus {
+            border-color: var(--text-dim);
+            background: #1a1a1a;
+        }
+
+        /* Separador visual para DD MM YY */
+        .digit-box:nth-child(2), 
+        .digit-box:nth-child(4) {
+            margin-right: 15px;
+        }
+
+        .hint {
+            font-size: 0.7rem;
+            color: #333;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-top: 20px;
+        }
+
+        .error-msg {
+            height: 20px;
+            font-size: 0.75rem;
+            color: #442222;
+            margin-top: 20px;
+            letter-spacing: 1px;
+        }
+
+        button {
+            background: none;
+            border: 1px solid var(--border);
+            color: var(--text-dim);
+            padding: 10px 30px;
+            cursor: pointer;
+            font-size: 0.7rem;
+            letter-spacing: 2px;
+            transition: 0.3s;
+            margin-top: 20px;
+        }
+
+        button:hover {
+            color: var(--text-main);
+            border-color: var(--text-main);
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Inicia Sesión</h1>
+        
+        <div class="user-field">marialcc009@gmail.com</div>
+
+        <form id="login-form">
+            <div class="date-input-container">
+                <input type="text" maxlength="1" class="digit-box" autocomplete="off">
+                <input type="text" maxlength="1" class="digit-box" autocomplete="off">
+                <input type="text" maxlength="1" class="digit-box" autocomplete="off">
+                <input type="text" maxlength="1" class="digit-box" autocomplete="off">
+                <input type="text" maxlength="1" class="digit-box" autocomplete="off">
+                <input type="text" maxlength="1" class="digit-box" autocomplete="off">
+            </div>
+
+            <button type="submit">ACCEDER</button>
+        </form>
+
+        <div id="error-message" class="error-msg"></div>
+        <div class="hint">Nuestra fecha</div>
+    </div>
+
+    <script>
+        const inputs = document.querySelectorAll('.digit-box');
+        const form = document.getElementById('login-form');
+        const errorMsg = document.getElementById('error-message');
+
+        // Manejo automático de foco entre cuadros
+        inputs.forEach((input, index) => {
+            input.addEventListener('input', (e) => {
+                if (e.target.value.length === 1 && index < inputs.length - 1) {
+                    inputs[index + 1].focus();
+                }
+            });
+
+            input.addEventListener('keydown', (e) => {
+                if (e.key === 'Backspace' && !e.target.value && index > 0) {
+                    inputs[index - 1].focus();
+                }
+            });
+        });
+
+        form.addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            // Unir los valores de los 6 cuadros
+            let code = "";
+            inputs.forEach(input => code += input.value);
+
+            // Validación de la fecha: 220825
+            if (code === "220825") {
+                errorMsg.style.color = "#224422";
+                errorMsg.textContent = "Cargando...";
+                setTimeout(() => {
+                    window.location.href = 'FLORES.html';
+                }, 1000);
+            } else {
+                errorMsg.textContent = "Fecha incorrecta.";
+                // Limpiar inputs
+                inputs.forEach(input => input.value = "");
+                inputs[0].focus();
+            }
+        });
+    </script>
+</body>
+</html>

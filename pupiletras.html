@@ -1,0 +1,706 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>PUPILETRAS · Sopa de Letras Móvil</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            user-select: none; /* Evita selección de texto al arrastrar */
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            min-height: 100vh;
+            background: radial-gradient(circle at 20% 30%, #0a0a1a, #000000);
+            font-family: 'Patrick Hand', 'Segoe UI', 'Comic Neue', cursive, monospace;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 12px;
+            position: relative;
+            overflow-x: hidden;
+            touch-action: pan-y; /* permite scroll vertical pero evita conflictos horizontales */
+        }
+
+        /* Fondo flotante optimizado para móvil (menos elementos para rendimiento) */
+        .floating-words {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            overflow: hidden;
+        }
+
+        .floating-words span {
+            position: absolute;
+            bottom: -100px;
+            font-family: 'Patrick Hand', cursive;
+            font-size: 12px;
+            color: rgba(255, 180, 200, 0.2);
+            white-space: nowrap;
+            animation: floatUpRandom 12s linear infinite;
+        }
+
+        @keyframes floatUpRandom {
+            0% { transform: translateY(0) rotate(-5deg); opacity: 0; }
+            15% { opacity: 0.6; }
+            85% { opacity: 0.6; }
+            100% { transform: translateY(-110vh) rotate(8deg); opacity: 0; }
+        }
+
+        /* Menos palabras flotantes en móvil para rendimiento */
+        .floating-words span:nth-child(1) { left: 5%; animation-duration: 11s; }
+        .floating-words span:nth-child(2) { left: 20%; animation-duration: 14s; font-size: 14px; }
+        .floating-words span:nth-child(3) { left: 40%; animation-duration: 10s; }
+        .floating-words span:nth-child(4) { left: 60%; animation-duration: 16s; }
+        .floating-words span:nth-child(5) { left: 80%; animation-duration: 13s; }
+        .floating-words span:nth-child(6) { left: 15%; animation-duration: 9s; display: none; } /* oculto en móvil */
+        .floating-words span:nth-child(7) { left: 50%; animation-duration: 15s; }
+        .floating-words span:nth-child(8) { left: 75%; animation-duration: 12s; display: none; }
+        .floating-words span:nth-child(9) { left: 90%; animation-duration: 11s; }
+        .floating-words span:nth-child(10) { left: 30%; animation-duration: 18s; display: none; }
+
+        /* Contenedor principal - FULL RESPONSIVE */
+        .game-container {
+            background: rgba(10, 5, 20, 0.8);
+            backdrop-filter: blur(4px);
+            border-radius: 2rem;
+            padding: 1rem;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5), 0 0 0 2px rgba(255, 105, 180, 0.4);
+            z-index: 10;
+            max-width: 600px;
+            width: 100%;
+            margin: auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 0.8rem;
+        }
+
+        .header h1 {
+            font-size: clamp(1.6rem, 7vw, 2.2rem);
+            color: #FFB6D9;
+            text-shadow: 0 2px 0 #8B0040, 0 4px 8px black;
+            letter-spacing: 2px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .sub {
+            color: #FF99CC;
+            background: rgba(0,0,0,0.55);
+            display: inline-block;
+            padding: 0.2rem 1rem;
+            border-radius: 30px;
+            font-size: clamp(0.7rem, 3.5vw, 1rem);
+            margin-top: 5px;
+        }
+
+        /* Grid de la sopa - Tamaño dinámico táctil */
+        .sopa-grid {
+            display: grid;
+            justify-content: center;
+            gap: clamp(3px, 1.5vw, 6px);
+            background: rgba(30, 15, 40, 0.6);
+            padding: clamp(8px, 2vw, 16px);
+            border-radius: 1.5rem;
+            margin: 8px 0;
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.5), 0 5px 12px rgba(0,0,0,0.4);
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        /* Celda táctil con tamaño responsivo para dedos */
+        .cell {
+            width: clamp(32px, 9vw, 52px);
+            height: clamp(32px, 9vw, 52px);
+            background: linear-gradient(145deg, #FFF0F5, #FFE4ED);
+            border-radius: clamp(10px, 3vw, 16px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: clamp(1.1rem, 5vw, 1.8rem);
+            font-weight: bold;
+            font-family: 'Patrick Hand', monospace;
+            color: #AA2E6E;
+            text-shadow: 0 1px 1px white;
+            cursor: pointer;
+            transition: all 0.08s linear;
+            box-shadow: 0 4px 0 #B86B8F;
+            border: 1px solid rgba(255,255,200,0.4);
+            touch-action: manipulation;
+        }
+
+        .cell.selected {
+            background: radial-gradient(circle, #FFB347, #FF8C42);
+            color: white;
+            text-shadow: 0 1px 2px black;
+            transform: scale(0.96);
+            box-shadow: 0 1px 0 #B86B8F;
+        }
+
+        .cell.found {
+            background: linear-gradient(145deg, #5A8C68, #2D6A4F);
+            color: #FFEFC0;
+            text-shadow: 0 1px 1px darkgreen;
+            cursor: default;
+            box-shadow: 0 2px 0 #2C5A3E;
+            transform: scale(0.97);
+            opacity: 0.9;
+        }
+
+        /* Lista de palabras - adaptable */
+        .word-list {
+            background: #1e1429cc;
+            border-radius: 1.5rem;
+            padding: 0.7rem 1rem;
+            margin: 12px 0 8px;
+            backdrop-filter: blur(4px);
+        }
+
+        .word-list h3 {
+            color: #FFC0E0;
+            font-size: clamp(1rem, 5vw, 1.3rem);
+            text-align: center;
+            border-bottom: 2px dashed #FF69B4;
+            display: inline-block;
+            width: 100%;
+            margin-bottom: 10px;
+        }
+
+        .words-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            row-gap: 8px;
+        }
+
+        .word-badge {
+            background: #2a1a30;
+            padding: 5px 12px;
+            border-radius: 40px;
+            font-size: clamp(0.75rem, 4vw, 1rem);
+            font-weight: bold;
+            color: #FFCFA0;
+            box-shadow: inset 0 1px 1px rgba(255,255,200,0.1), 0 2px 5px black;
+            font-family: 'Patrick Hand', monospace;
+            letter-spacing: 0.5px;
+            white-space: nowrap;
+        }
+
+        .word-badge.found-word {
+            background: #42995b;
+            color: #FFEBC4;
+            text-decoration: line-through;
+            text-decoration-thickness: 2px;
+            text-decoration-color: #FFD966;
+            filter: drop-shadow(0 0 3px gold);
+        }
+
+        /* Botones táctiles grandes */
+        .actions {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            margin-top: 12px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #FF69B4, #E60073);
+            border: none;
+            padding: 8px 18px;
+            font-size: clamp(0.85rem, 4vw, 1.1rem);
+            font-family: 'Patrick Hand', cursive;
+            font-weight: bold;
+            color: white;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: transform 0.05s, box-shadow 0.1s;
+            box-shadow: 0 4px 0 #9B2C5C;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            touch-action: manipulation;
+        }
+
+        .btn:active {
+            transform: translateY(2px);
+            box-shadow: 0 1px 0 #9B2C5C;
+        }
+
+        .btn-reset {
+            background: linear-gradient(135deg, #614385, #516395);
+            box-shadow: 0 4px 0 #2C2E4A;
+        }
+
+        .message-area {
+            text-align: center;
+            margin-top: 10px;
+            font-size: clamp(0.75rem, 3.5vw, 1rem);
+            background: #000000aa;
+            border-radius: 30px;
+            padding: 6px 10px;
+            color: #FFB3D1;
+            font-weight: bold;
+            line-height: 1.3;
+        }
+
+        footer {
+            text-align: center;
+            font-size: 0.65rem;
+            color: #ff99aa80;
+            margin-top: 8px;
+        }
+
+        /* Scroll horizontal si el grid es muy ancho (seguridad) */
+        .sopa-grid {
+            overflow-x: auto;
+        }
+
+        /* Ajuste para pantallas muy pequeñas (menos de 380px) */
+        @media (max-width: 420px) {
+            .game-container {
+                padding: 0.7rem;
+            }
+            .cell {
+                width: clamp(28px, 8vw, 38px);
+                height: clamp(28px, 8vw, 38px);
+                font-size: clamp(0.9rem, 4vw, 1.2rem);
+            }
+            .word-badge {
+                padding: 3px 10px;
+                font-size: 0.7rem;
+            }
+            .btn {
+                padding: 6px 14px;
+            }
+        }
+
+        /* Evitar que el body haga scroll horizontal */
+        body {
+            overflow-x: hidden;
+        }
+    </style>
+</head>
+<body>
+
+<div class="floating-words">
+    <span>💖 te amo 💖</span><span>🌸 princesa 🌸</span><span>✨ eres única ✨</span>
+    <span>🌺 mi tesoro 🌺</span><span>💕 te adoro 💕</span><span>🌷 ciega 🌷</span>
+    <span>🌹 siempre te amaré 🌹</span><span>💗 mi niña 💗</span><span>🌻 preciosa 🌻</span>
+    <span>⭐ mi vida ⭐</span><span>🌸 hermosa 🌸</span><span>💞 mi chatita 💞</span>
+    <span>🍑 pechos :3 🍑</span><span>🐀 come ratas 🐀</span>
+</div>
+
+<div class="game-container">
+    <div class="header">
+        <h1>
+            <span>🔍</span> PUPILETRAS <span>💋</span>
+        </h1>
+        <div class="sub">✨ Toca y arrastra sobre las letras ✨</div>
+    </div>
+
+    <div id="sopaGrid" class="sopa-grid" style="display: grid;"></div>
+
+    <div class="word-list">
+        <h3>📜 PALABRAS OCULTAS 📜</h3>
+        <div id="wordsContainer" class="words-container"></div>
+    </div>
+
+    <div class="actions">
+        <button class="btn" id="resetBtn">🔄 Reiniciar</button>
+        <button class="btn btn-reset" id="newGameBtn">🌟 Nueva Sopa</button>
+    </div>
+    <div id="messageBox" class="message-area">💬 Mantén presionado y arrastra sobre las letras para formar palabras</div>
+    <footer>💝 Encuentra todos los secretos (incluidos los traviesos) 💝</footer>
+</div>
+
+<script>
+    // ---------- LISTA DE PALABRAS (con guiño íntimo) ----------
+    const THEME_WORDS = [
+        "TEAMO", "PRINCESA", "HERMOSA", "UNICA", "TESORO", 
+        "VIDA", "CIEGA", "PRECIOSA", "BONITA", "CHATITA",
+        "PECHOS3",      // "pechos :3"
+        "COMERATAS"     // "come ratas"
+    ];
+    
+    const WORD_DISPLAY = {
+        "TEAMO": "TE AMO ❤️",
+        "PRINCESA": "PRINCESA 👑",
+        "HERMOSA": "HERMOSA 🌸",
+        "UNICA": "ÚNICA ✨",
+        "TESORO": "TESORO 💎",
+        "VIDA": "VIDA 🌟",
+        "CIEGA": "CIEGA 💕",
+        "PRECIOSA": "PRECIOSA 🌷",
+        "BONITA": "BONITA 🌺",
+        "CHATITA": "CHATITA 🐱💖",
+        "PECHOS3": "pechos :3 🍑",
+        "COMERATAS": "come ratas 🐀"
+    };
+    
+    let currentGrid = [];
+    let rows = 11;          // un poco más compacto para móvil
+    let cols = 11;
+    
+    let foundWords = new Set();
+    let selectedCells = [];
+    let isSelecting = false;
+    let currentDirection = null;
+    let firstCell = null;
+    
+    let gridContainer = document.getElementById("sopaGrid");
+    let wordsContainer = document.getElementById("wordsContainer");
+    let messageBox = document.getElementById("messageBox");
+    
+    if (!window.foundWordsPositions) window.foundWordsPositions = new Map();
+    
+    // Funciones del juego (optimizadas para táctil)
+    function showMessage(msg, isError = false) {
+        messageBox.innerHTML = isError ? `⚠️ ${msg} ⚠️` : `💖 ${msg} 💖`;
+        setTimeout(() => {
+            if (messageBox.innerHTML.includes(msg)) {
+                if(!isError) messageBox.innerHTML = "💬 Sigue buscando... ¡Tú puedes! 💬";
+                else messageBox.innerHTML = "💬 Vuelve a intentarlo, arrastra con cuidado 💬";
+            }
+        }, 1700);
+    }
+    
+    function registerFoundWordPositions(word, cellsArray) {
+        if (!window.foundWordsPositions) window.foundWordsPositions = new Map();
+        if (!window.foundWordsPositions.has(word)) {
+            window.foundWordsPositions.set(word, cellsArray.map(c => ({ row: c.row, col: c.col })));
+        }
+        for (let cell of cellsArray) {
+            const cellDiv = document.querySelector(`.cell[data-row='${cell.row}'][data-col='${cell.col}']`);
+            if (cellDiv && !cellDiv.classList.contains('found')) {
+                cellDiv.classList.add('found');
+                cellDiv.classList.remove('selected');
+            }
+        }
+    }
+    
+    function markWordAsFoundWithCells(word, cells) {
+        if (foundWords.has(word)) return false;
+        foundWords.add(word);
+        if (cells && cells.length) {
+            registerFoundWordPositions(word, cells);
+        }
+        const badges = document.querySelectorAll('.word-badge');
+        for (let badge of badges) {
+            if (badge.getAttribute('data-word') === word) {
+                badge.classList.add('found-word');
+                break;
+            }
+        }
+        let displayMsg = WORD_DISPLAY[word] || word;
+        showMessage(`¡Encontraste "${displayMsg}"! 💘`);
+        if (foundWords.size === THEME_WORDS.length) {
+            setTimeout(() => {
+                alert("🎉✨ ¡HAS GANADO! Descubriste todos los secretos (incluidos los juguetones) ✨🎉");
+                showMessage("🏆 ¡ERES LA CAMPEONA DEL PUPILETRAS! 🏆");
+            }, 100);
+        }
+        return true;
+    }
+    
+    function isCellPartOfFoundWord(row, col) {
+        if (!window.foundWordsPositions) return false;
+        for (let positions of window.foundWordsPositions.values()) {
+            for (let pos of positions) {
+                if (pos.row === row && pos.col === col) return true;
+            }
+        }
+        return false;
+    }
+    
+    function getWordFromSelection(selection) {
+        if (selection.length < 2) return "";
+        let word = "";
+        for (let cell of selection) {
+            word += currentGrid[cell.row][cell.col];
+        }
+        return word;
+    }
+    
+    function validateSelection() {
+        if (selectedCells.length < 2) return false;
+        const wordFormed = getWordFromSelection(selectedCells);
+        const matched = THEME_WORDS.find(w => w === wordFormed);
+        if (matched && !foundWords.has(matched)) {
+            markWordAsFoundWithCells(matched, [...selectedCells]);
+            clearSelection();
+            renderGrid(); 
+            return true;
+        } else if (matched && foundWords.has(matched)) {
+            showMessage(`"${WORD_DISPLAY[matched]}" ya la tenías`, true);
+            clearSelection();
+            return false;
+        } else {
+            if (wordFormed.length >= 3) showMessage(`"${wordFormed}" no está en la lista`, true);
+            else showMessage("Selección no válida", true);
+            clearSelection();
+            return false;
+        }
+    }
+    
+    function clearSelection() {
+        document.querySelectorAll('.cell.selected').forEach(cell => {
+            cell.classList.remove('selected');
+        });
+        selectedCells = [];
+        isSelecting = false;
+        currentDirection = null;
+        firstCell = null;
+    }
+    
+    // Eventos táctiles + mouse (unificado)
+    function attachCellEvents(cellDiv, row, col) {
+        // Para mouse
+        cellDiv.addEventListener('mousedown', (e) => {
+            e.preventDefault();
+            startSelection(row, col);
+        });
+        cellDiv.addEventListener('mouseenter', () => {
+            if (isSelecting) continueSelection(row, col);
+        });
+        // Para dispositivos táctiles (touch events)
+        cellDiv.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            const touch = e.touches[0];
+            const target = document.elementFromPoint(touch.clientX, touch.clientY);
+            if (target && target.classList && target.classList.contains('cell')) {
+                const r = parseInt(target.getAttribute('data-row'));
+                const c = parseInt(target.getAttribute('data-col'));
+                if (!isNaN(r)) startSelection(r, c);
+            } else {
+                startSelection(row, col);
+            }
+        });
+        cellDiv.addEventListener('touchmove', (e) => {
+            e.preventDefault();
+            const touch = e.touches[0];
+            const elem = document.elementFromPoint(touch.clientX, touch.clientY);
+            if (elem && elem.classList && elem.classList.contains('cell')) {
+                const r = parseInt(elem.getAttribute('data-row'));
+                const c = parseInt(elem.getAttribute('data-col'));
+                if (!isNaN(r) && isSelecting) continueSelection(r, c);
+            }
+        });
+        cellDiv.addEventListener('touchend', (e) => {
+            e.preventDefault();
+            if (isSelecting) endSelection();
+        });
+    }
+    
+    function startSelection(row, col) {
+        if (isSelecting) return;
+        const cellDiv = document.querySelector(`.cell[data-row='${row}'][data-col='${col}']`);
+        if (cellDiv && cellDiv.classList.contains('found')) {
+            showMessage("Palabra ya encontrada 🌟", true);
+            return;
+        }
+        clearSelection();
+        isSelecting = true;
+        firstCell = { row, col };
+        selectedCells = [{ row, col }];
+        currentDirection = null;
+        const firstDiv = document.querySelector(`.cell[data-row='${row}'][data-col='${col}']`);
+        if (firstDiv) firstDiv.classList.add('selected');
+    }
+    
+    function continueSelection(row, col) {
+        if (!isSelecting) return;
+        const newCellDiv = document.querySelector(`.cell[data-row='${row}'][data-col='${col}']`);
+        if (newCellDiv && newCellDiv.classList.contains('found')) return;
+        const last = selectedCells[selectedCells.length - 1];
+        if (last.row === row && last.col === col) return;
+        
+        if (currentDirection === null && selectedCells.length === 1) {
+            const dr = row - firstCell.row;
+            const dc = col - firstCell.col;
+            if (Math.abs(dr) > 1 || Math.abs(dc) > 1) return;
+            if (dr === 0 && dc === 0) return;
+            currentDirection = { dr, dc };
+            if (!isCellFound(row, col)) {
+                selectedCells.push({ row, col });
+                if (newCellDiv) newCellDiv.classList.add('selected');
+            }
+            return;
+        }
+        
+        if (currentDirection) {
+            const nextRow = selectedCells[selectedCells.length - 1].row + currentDirection.dr;
+            const nextCol = selectedCells[selectedCells.length - 1].col + currentDirection.dc;
+            if (nextRow === row && nextCol === col) {
+                if (!isCellFound(row, col)) {
+                    selectedCells.push({ row, col });
+                    if (newCellDiv) newCellDiv.classList.add('selected');
+                } else {
+                    endSelection();
+                }
+            } else {
+                endSelection();
+            }
+        }
+    }
+    
+    function isCellFound(row, col) {
+        const div = document.querySelector(`.cell[data-row='${row}'][data-col='${col}']`);
+        return div && div.classList.contains('found');
+    }
+    
+    function endSelection() {
+        if (isSelecting && selectedCells.length >= 2) {
+            validateSelection();
+        } else {
+            clearSelection();
+        }
+        isSelecting = false;
+        currentDirection = null;
+        firstCell = null;
+    }
+    
+    // Generador de sopa optimizado
+    function generateEmptyGrid() {
+        return Array(rows).fill().map(() => Array(cols).fill(''));
+    }
+    
+    function canPlaceWord(grid, word, row, col, dr, dc) {
+        for (let i = 0; i < word.length; i++) {
+            const nr = row + dr * i, nc = col + dc * i;
+            if (nr < 0 || nr >= rows || nc < 0 || nc >= cols) return false;
+            if (grid[nr][nc] !== '' && grid[nr][nc] !== word[i]) return false;
+        }
+        return true;
+    }
+    
+    function placeWord(grid, word, row, col, dr, dc) {
+        for (let i = 0; i < word.length; i++) {
+            const nr = row + dr * i, nc = col + dc * i;
+            grid[nr][nc] = word[i];
+        }
+    }
+    
+    function generateSopaWithWords() {
+        let grid = Array(rows).fill().map(() => Array(cols).fill(''));
+        const directions = [[1,0], [0,1], [1,1], [1,-1], [-1,0], [0,-1], [-1,-1], [-1,1]];
+        let wordsCopy = [...THEME_WORDS];
+        wordsCopy.sort((a,b) => b.length - a.length);
+        for (let w of wordsCopy) {
+            let placed = false;
+            for (let attempt = 0; attempt < 800; attempt++) {
+                const dir = directions[Math.floor(Math.random() * directions.length)];
+                const dr = dir[0], dc = dir[1];
+                let maxRow = rows - (dr === 1 ? w.length-1 : (dr === -1 ? w.length-1 : 0));
+                let minRow = (dr === -1) ? w.length-1 : 0;
+                let maxCol = cols - (dc === 1 ? w.length-1 : (dc === -1 ? w.length-1 : 0));
+                let minCol = (dc === -1) ? w.length-1 : 0;
+                if (maxRow < minRow || maxCol < minCol) continue;
+                const row = minRow + Math.floor(Math.random() * (maxRow - minRow + 1));
+                const col = minCol + Math.floor(Math.random() * (maxCol - minCol + 1));
+                if (canPlaceWord(grid, w, row, col, dr, dc)) {
+                    placeWord(grid, w, row, col, dr, dc);
+                    placed = true;
+                    break;
+                }
+            }
+            if (!placed) {
+                for (let i = 0; i < rows && !placed; i++) {
+                    for (let j = 0; j < cols && !placed; j++) {
+                        if (canPlaceWord(grid, w, i, j, 1, 0)) { placeWord(grid, w, i, j, 1, 0); placed = true; break; }
+                        if (canPlaceWord(grid, w, i, j, 0, 1)) { placeWord(grid, w, i, j, 0, 1); placed = true; break; }
+                    }
+                }
+            }
+        }
+        for (let i = 0; i < rows; i++) {
+            for (let j = 0; j < cols; j++) {
+                if (grid[i][j] === '') {
+                    grid[i][j] = String.fromCharCode(65 + Math.floor(Math.random() * 26));
+                }
+            }
+        }
+        return grid;
+    }
+    
+    function renderGrid() {
+        if (!gridContainer) return;
+        gridContainer.style.gridTemplateColumns = `repeat(${cols}, minmax(0, 1fr))`;
+        gridContainer.innerHTML = '';
+        for (let i = 0; i < rows; i++) {
+            for (let j = 0; j < cols; j++) {
+                const cellValue = currentGrid[i][j];
+                const cellDiv = document.createElement('div');
+                cellDiv.classList.add('cell');
+                cellDiv.textContent = cellValue;
+                cellDiv.setAttribute('data-row', i);
+                cellDiv.setAttribute('data-col', j);
+                if (isCellPartOfFoundWord(i, j)) {
+                    cellDiv.classList.add('found');
+                }
+                attachCellEvents(cellDiv, i, j);
+                gridContainer.appendChild(cellDiv);
+            }
+        }
+        // Prevenir que el mouseup se pierda
+        document.body.addEventListener('mouseup', () => { if (isSelecting) endSelection(); });
+        document.body.addEventListener('touchend', () => { if (isSelecting) endSelection(); });
+    }
+    
+    function resetGameState() {
+        clearSelection();
+        foundWords.clear();
+        if (window.foundWordsPositions) window.foundWordsPositions.clear();
+        else window.foundWordsPositions = new Map();
+        renderGrid();
+        updateWordListUI();
+        showMessage("¡Juego reiniciado! Vuelve a buscar todas 💪");
+    }
+    
+    function updateWordListUI() {
+        wordsContainer.innerHTML = '';
+        for (let word of THEME_WORDS) {
+            const badge = document.createElement('div');
+            badge.classList.add('word-badge');
+            if (foundWords.has(word)) badge.classList.add('found-word');
+            badge.setAttribute('data-word', word);
+            badge.textContent = WORD_DISPLAY[word] || word;
+            wordsContainer.appendChild(badge);
+        }
+    }
+    
+    function newGame() {
+        currentGrid = generateSopaWithWords();
+        foundWords.clear();
+        if (window.foundWordsPositions) window.foundWordsPositions.clear();
+        renderGrid();
+        updateWordListUI();
+        showMessage("¡Nueva sopa generada! Encuentra todas las palabras 💖");
+    }
+    
+    function initGame() {
+        currentGrid = generateSopaWithWords();
+        renderGrid();
+        updateWordListUI();
+        document.getElementById("resetBtn").onclick = () => { resetGameState(); };
+        document.getElementById("newGameBtn").onclick = () => { newGame(); };
+    }
+    
+    initGame();
+</script>
+</body>
+</html>
