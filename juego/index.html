@@ -2,40 +2,74 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Lizeth Tsunami</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Lizeth Tsunami | Honor Edition</title>
     <link rel="stylesheet" href="css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700;900&display=swap" rel="stylesheet">
 </head>
 <body>
-    <div id="main-menu">
-        <div class="menu-content">
-            <h1>LIZETH TSUNAMI</h1>
-            <div class="character-preview">
-                <button class="nav-btn" id="prev-skin">◀</button>
-                <div class="preview-box">
-                    <img id="skin-img-preview" src="assets/skin1/idle1.png">
-                    <span id="skin-name">LIZETH 1</span>
+    <!-- AVISO DE ROTACIÓN -->
+    <div id="rotate-device">
+        <div class="rotate-content">
+            <div class="phone-icon">🔄</div>
+            <h2>¡Gira tu pantalla!</h2>
+            <p>Lizeth Tsunami se juega en modo horizontal.</p>
+        </div>
+    </div>
+
+    <!-- PANTALLA DE CARGA -->
+    <div id="loading-screen">
+        <div class="loader-container">
+            <h1 class="loading-title">LIZETH TSUNAMI</h1>
+            <div class="progress-bar-bg">
+                <div id="progress-fill"></div>
+            </div>
+            <p id="loading-text">Iniciando recursos...</p>
+        </div>
+    </div>
+
+    <!-- MENÚ PRINCIPAL -->
+    <div id="main-menu" style="display: none;">
+        <div class="menu-card">
+            <h1 class="game-title">LIZETH <span>TSUNAMI</span></h1>
+            <div class="selection-container">
+                <button class="nav-btn" id="prev-skin">‹</button>
+                <div class="skin-display">
+                    <div class="glow"></div>
+                    <img id="skin-img-preview" src="">
+                    <div class="skin-info"><span id="skin-name">LIZETH 1</span></div>
                 </div>
-                <button class="nav-btn" id="next-skin">▶</button>
+                <button class="nav-btn" id="next-skin">›</button>
             </div>
             <button id="start-btn">EMPEZAR PARTIDA</button>
         </div>
     </div>
 
+    <!-- UI DEL JUEGO -->
     <div id="ui" style="display: none;">
-        <div id="gold-stat" class="stat-box">💰 Oro: <span id="gold-count">0</span></div>
-        <div id="lizeth-stat" class="stat-box">👯 Lizeths: <span id="lizeth-count">1</span></div>
+        <div class="stat-card">
+            <span class="icon">💰</span>
+            <div class="stat-val"><small>ORO</small><span id="gold-count">0</span></div>
+        </div>
+        <div class="stat-card">
+            <span class="icon">👯</span>
+            <div class="stat-val"><small>HORDA</small><span id="lizeth-count">1</span></div>
+        </div>
     </div>
 
+    <!-- GAME OVER -->
     <div id="game-over-screen" style="display: none;">
-        <h1>¡GAME OVER!</h1>
-        <button id="restart-btn">NUEVA PARTIDA</button>
+        <div class="menu-card">
+            <h1>¡FIN DEL JUEGO!</h1>
+            <button id="restart-btn">REINTENTAR</button>
+        </div>
     </div>
 
     <canvas id="game"></canvas>
 
-    <script src="js/player.js"></script>
+    <!-- SCRIPTS -->
     <script src="js/item.js"></script>
+    <script src="js/player.js"></script>
     <script src="js/input.js"></script>
     <script src="js/game.js"></script>
 </body>
