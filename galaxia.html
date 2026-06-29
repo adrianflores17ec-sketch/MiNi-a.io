@@ -1,2074 +1,579 @@
 <!doctype html>
 <html lang="es">
-
 <head>
-
 <meta charset="utf-8">
-
-<meta name="viewport"
-content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-
-
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>Mi Galaxia 💜</title>
 
-
 <style>
-
-
 html,body{
-
 margin:0;
 height:100%;
 overflow:hidden;
-
 background:#000;
-
 font-family:sans-serif;
-
 }
-
-
 
 canvas{
-
 position:fixed;
 inset:0;
-
 opacity:0;
-
 transition:2s;
-
 }
-
-
 
 /* =====================
  INTRO
 ===================== */
-
-
 #intro{
-
 position:fixed;
-
 inset:0;
-
 z-index:999;
-
-
-background:
-
-radial-gradient(
-circle,
-#220044,
-#000
-);
-
-
+background:radial-gradient(circle,#220044,#000);
 display:flex;
-
 flex-direction:column;
-
 justify-content:center;
-
 align-items:center;
-
-
 color:white;
-
 }
-
-
 
 #loadingText{
-
 font-size:22px;
-
 margin-bottom:20px;
-
 }
-
-
 
 #bar{
-
 width:280px;
-
 height:10px;
-
 background:#ffffff22;
-
 border-radius:30px;
-
 overflow:hidden;
-
 }
-
-
 
 #progress{
-
 height:100%;
-
 width:0%;
-
-
-background:
-
-linear-gradient(
-90deg,
-#8b3dff,
-#ffb7ff
-);
-
-
+background:linear-gradient(90deg,#8b3dff,#ffb7ff);
 transition:.2s;
-
 }
-
-
-
 
 #start{
-
 display:none;
-
-
 margin-top:30px;
-
-
 padding:15px 35px;
-
-
 border:0;
-
-
 border-radius:40px;
-
-
 background:#9b55ff;
-
-
 color:white;
-
-
 font-size:17px;
-
 }
-
-
-
-
-
-
 
 /* =====================
  HISTORIA
 ===================== */
-
-
 #story{
-
-
 position:fixed;
-
 inset:0;
-
-
 z-index:998;
-
-
 background:#000;
-
-
 display:none;
-
-
 justify-content:center;
-
-
 align-items:center;
-
-
 }
-
-
 
 #storyText{
-
-
 color:white;
-
-
 font-size:25px;
-
-
 text-align:center;
-
-
 max-width:80%;
-
-
 opacity:0;
-
-
 transition:1.5s;
-
-
-text-shadow:
-
-0 0 20px #b678ff;
-
-
+text-shadow:0 0 20px #b678ff;
 }
-
-
-
-
-
-
 
 /* =====================
  MENSAJE GALAXIA
 ===================== */
-
-
 #secretMessage{
-
-
 position:fixed;
-
-
 bottom:30px;
-
-
 left:50%;
-
-
 transform:translateX(-50%);
-
-
 z-index:20;
-
-
 opacity:0;
-
-
 transition:2s;
-
-
 text-align:center;
-
-
 color:white;
-
-
 }
-
-
-
 
 .hint{
-
-
 font-size:18px;
-
-
-text-shadow:
-
-0 0 20px #c084ff;
-
-
+text-shadow:0 0 20px #c084ff;
 }
-
-
 
 .gameBox{
-
-
 margin-top:15px;
-
-
 padding:15px 25px;
-
-
 border-radius:25px;
-
-
 background:#250044aa;
-
-
 backdrop-filter:blur(15px);
-
-
-border:
-
-1px solid #d4a0ff55;
-
-
+border:1px solid #d4a0ff55;
 }
-
-
 
 .gameBox button{
-
-
 margin-top:12px;
-
-
 padding:10px 25px;
-
-
 border:0;
-
-
 border-radius:30px;
-
-
 background:#a855ff;
-
-
 color:white;
-
-
 font-size:15px;
-
-
 }
-
-
-
 </style>
 
-
-
-<script src=
-"https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js">
-</script>
-
-
-<script src=
-"https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js">
-</script>
-
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
 
 </head>
-
-
 <body>
 
-<!-- =====================
- INTRO
-===================== -->
-
-
 <div id="intro">
-
-
-<div id="loadingText">
-
-Preparando universo...
-
-</div>
-
-
+<div id="loadingText">Preparando universo...</div>
 <div id="bar">
-
 <div id="progress"></div>
-
 </div>
-
-
-
-<button id="start">
-
-Tocar para iniciar 💜
-
-</button>
-
-
+<button id="start">Tocar para iniciar 💜</button>
 </div>
-
-
-
-
-
-
-<!-- =====================
- HISTORIA
-===================== -->
-
 
 <div id="story">
-
-
-<div id="storyText">
-
-
+<div id="storyText"></div>
 </div>
-
-
-</div>
-
-
-
-
-
-
-
-<!-- =====================
- MENSAJE FINAL
-===================== -->
-
 
 <div id="secretMessage">
-
-
 <div class="hint">
-
 Mueve o acerca la pantalla mi niña💖✨ <br>
-
 te va a gustar más 💜
-
 </div>
-
-
-
 
 <div class="gameBox">
-
-
 ¿Te apetece jugar algo? 🌸
-
-
-
 <br>
-
-
-
-<button onclick="location.href='FLORES.html'">
-
-Jugar 💜
-
-</button>
-
-
-
+<button onclick="location.href='FLORES.html'">Jugar 💜</button>
 </div>
-
-
 </div>
-
-
-
-
-
-
-
 
 <audio id="audio" loop>
-
-
-<source src="musicaaspiral.mp3"
-type="audio/mpeg">
-
-
+<source src="musicaaspiral.mp3" type="audio/mpeg">
 </audio>
-
-
-
-
 
 <canvas id="galaxy"></canvas>
 
-
-
-
-
-
-
 <script>
-
-
-
-
-
 // ======================
 // CARGA
 // ======================
-
-
-const intro =
-document.getElementById("intro");
-
-
-const progress =
-document.getElementById("progress");
-
-
-const loadingText =
-document.getElementById("loadingText");
-
-
-const start =
-document.getElementById("start");
-
-
+const intro = document.getElementById("intro");
+const progress = document.getElementById("progress");
+const loadingText = document.getElementById("loadingText");
+const start = document.getElementById("start");
 
 let load=0;
 
-
-
-let loading =
-setInterval(()=>{
-
-
-
+let loading = setInterval(()=>{
 load++;
-
-
-
-progress.style.width =
-load+"%";
-
-
-
+progress.style.width = load+"%";
 
 if(load==25){
-
-
-loadingText.innerHTML =
-"Conectando recuerdos...";
-
-
+loadingText.innerHTML = "Conectando recuerdos...";
 }
-
-
-
 if(load==55){
-
-
-loadingText.innerHTML =
-"Guardando momentos...";
-
-
+loadingText.innerHTML = "Guardando momentos...";
 }
-
-
-
-
 if(load==80){
-
-
-loadingText.innerHTML =
-"Cargando estrellas...";
-
-
+loadingText.innerHTML = "Cargando estrellas...";
 }
-
-
-
-
 if(load>=100){
-
-
-
 clearInterval(loading);
-
-
-
-loadingText.innerHTML =
-"Universo listo ✨";
-
-
-
+loadingText.innerHTML = "Universo listo ✨";
 setTimeout(()=>{
-
-
 start.style.display="block";
-
-
 },900);
-
-
-
 }
-
-
-
 },120);
 
-
-
-
-
-
-
-
-
-
-
+// ======================
+// PANTALLA COMPLETA MEJORADA
+// ======================
+function enterFullscreen() {
+    const elem = document.documentElement;
+    try {
+        if (elem.requestFullscreen) {
+            elem.requestFullscreen().catch(err => console.log(err));
+        } else if (elem.mozRequestFullScreen) { /* Firefox */
+            elem.mozRequestFullScreen();
+        } else if (elem.webkitRequestFullscreen) { /* Chrome, Safari y Opera */
+            elem.webkitRequestFullscreen();
+        } else if (elem.msRequestFullscreen) { /* IE11 / Edge */
+            elem.msRequestFullscreen();
+        }
+    } catch (error) {
+        console.log("El navegador no soporta pantalla completa automática.");
+    }
+}
 
 // ======================
 // INICIAR
 // ======================
+const audio = document.getElementById("audio");
 
+start.addEventListener("click", () => {
+    // Activar pantalla completa al tocar el botón
+    enterFullscreen();
 
-const audio =
-document.getElementById("audio");
+    // Reproducir audio
+    audio.play().catch(e => console.log(e));
+    
+    intro.style.opacity = 0;
 
+    setTimeout(()=>{
+    intro.style.display="none";
 
+    // espera antes de historia
+    setTimeout(()=>{
+    showStory();
+    },5000);
 
-start.onclick=()=>{
-
-
-audio.play();
-
-
-
-intro.style.opacity=0;
-
-
-
-setTimeout(()=>{
-
-
-intro.style.display="none";
-
-
-
-// espera antes de historia
-
-setTimeout(()=>{
-
-
-showStory();
-
-
-
-},5000);
-
-
-
-},1500);
-
-
-
-};
-
-
-
-
-
-
-
+    },1500);
+});
 
 // ======================
 // HISTORIA
 // ======================
-
-
-
-const story =
-document.getElementById("story");
-
-
-const storyText =
-document.getElementById("storyText");
-
-
-
-
+const story = document.getElementById("story");
+const storyText = document.getElementById("storyText");
 
 let messages=[
-
-
 "solo nos estamos dando un tiempo... verdad?",
-
-
 "volverás, verdad amor?",
-
-
 "seguiremos tú y yo contra el mundo, verdad chiquita? ...",
-
-
 "donde estas?... no que me amabas mas que yo, mentirosilla",
-
-
 ":)?..."
-
-
-
 ];
-
-
-
-
-
 
 let index=0;
 
-
-
-
-
-
-
-
 function showStory(){
-
-
 story.style.display="flex";
-
-
-
 storyText.innerHTML="...";
-
-
 storyText.style.opacity=1;
 
-
-
 setTimeout(()=>{
-
-
 playMessage();
-
-
-
 },2500);
-
-
-
 }
-
-
-
-
-
-
-
 
 function playMessage(){
-
-
-
 if(index>=messages.length){
-
-
-
 story.style.opacity=0;
 
-
-
 setTimeout(()=>{
-
-
 story.style.display="none";
 
-
-
 // galaxia aparece
-
-
-document
-.getElementById("galaxy")
-.style.opacity=1;
-
-
-
+document.getElementById("galaxy").style.opacity=1;
 
 // mensaje de acercar
-
 setTimeout(()=>{
-
-
-document
-.getElementById("secretMessage")
-.style.opacity=1;
-
-
-
+document.getElementById("secretMessage").style.opacity=1;
 
 // ocultar juego primero
-
-
-document
-.querySelector(".gameBox")
-.style.display="none";
-
-
-
-
+document.querySelector(".gameBox").style.display="none";
 
 // aparece luego de 10 segundos
-
-
 setTimeout(()=>{
-
-
-document
-.querySelector(".gameBox")
-.style.display="block";
-
-
+document.querySelector(".gameBox").style.display="block";
 },30000);
 
-
-
-
-
 },1200);
-
-
-
-
-
 },2000);
-
-
-
 return;
-
-
-
 }
 
-
-
-
-
-
-
-let text =
-messages[index];
-
-
-
+let text = messages[index];
 let pos=0;
-
-
-
 storyText.innerHTML="";
-
-
-
 storyText.style.opacity=1;
 
-
-
-
-
-
-
-let typing =
-setInterval(()=>{
-
-
-
-storyText.innerHTML +=
-text[pos];
-
-
-
+let typing = setInterval(()=>{
+storyText.innerHTML += text[pos];
 pos++;
 
-
-
-
-
 if(pos>=text.length){
-
-
 clearInterval(typing);
-
-
-
-
 setTimeout(()=>{
-
-
-
 storyText.style.opacity=0;
-
-
-
-
 setTimeout(()=>{
-
-
 index++;
-
-
 playMessage();
-
-
-
 },1500);
-
-
-
 },4500);
-
-
-
 }
-
-
-
-
 },70);
-
-
-
 }
-
 
 // ======================
 // THREE.JS GALAXIA
 // ======================
+const scene = new THREE.Scene();
 
-
-const scene =
-new THREE.Scene();
-
-
-
-
-
-const camera =
-new THREE.PerspectiveCamera(
-
+const camera = new THREE.PerspectiveCamera(
 75,
-
 innerWidth / innerHeight,
-
 0.1,
-
 3000
-
 );
-
-
-
-
 
 // CAMARA ALEJADA
+camera.position.set(0,260,520);
 
-camera.position.set(
-
-0,
-
-260,
-
-520
-
-);
-
-
-
-
-
-
-
-const renderer =
-new THREE.WebGLRenderer({
-
-canvas:
-document.getElementById("galaxy"),
-
+const renderer = new THREE.WebGLRenderer({
+canvas: document.getElementById("galaxy"),
 antialias:true,
-
 alpha:true
-
 });
 
+renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+renderer.setSize(innerWidth,innerHeight);
 
-
-
-
-renderer.setPixelRatio(
-
-Math.min(
-devicePixelRatio,
-2
-)
-
-);
-
-
-
-renderer.setSize(
-
-innerWidth,
-
-innerHeight
-
-);
-
-
-
-
-
-
-
-
-
-const controls =
-new THREE.OrbitControls(
-
-camera,
-
-renderer.domElement
-
-);
-
-
-
+const controls = new THREE.OrbitControls(camera,renderer.domElement);
 controls.enableDamping=true;
-
-
-
 controls.dampingFactor=.05;
-
-
-
 controls.minDistance=45;
-
-
-
 controls.maxDistance=900;
-
-
-
-
-
-
-
-
 
 // ======================
 // ESTRELLAS
 // ======================
-
-
 let stars=[];
-
-
-
 for(let i=0;i<16000;i++){
-
-
-
 stars.push(
-
 (Math.random()-.5)*3000,
-
 (Math.random()-.5)*3000,
-
 (Math.random()-.5)*3000
-
 );
-
-
-
 }
 
+const starGeo = new THREE.BufferGeometry();
+starGeo.setAttribute("position",new THREE.Float32BufferAttribute(stars,3));
 
-
-
-
-
-const starGeo =
-new THREE.BufferGeometry();
-
-
-
-
-
-starGeo.setAttribute(
-
-"position",
-
-new THREE.Float32BufferAttribute(
-stars,
-3
-)
-
-);
-
-
-
-
-
-
-
-const starMat =
-new THREE.PointsMaterial({
-
+const starMat = new THREE.PointsMaterial({
 color:0xffffff,
-
 size:.7,
-
 transparent:true,
-
 opacity:.7
-
-
 });
 
-
-
-
-
-
-scene.add(
-
-new THREE.Points(
-starGeo,
-starMat
-)
-
-);
-
-
-
-
-
-
-
-
-
-
-
+scene.add(new THREE.Points(starGeo,starMat));
 
 // ======================
 // ESPIRAL GALAXIA
 // ======================
-
-
-const galaxy =
-new THREE.Group();
-
-
-
+const galaxy = new THREE.Group();
 scene.add(galaxy);
-
-
-
-
-
 galaxy.rotation.x=-0.55;
-
-
-
-
-
 
 const dust=[];
 
-
-
-
-
-
-
 for(let i=0;i<16000;i++){
-
-
-
-let r =
-Math.pow(Math.random(),.55)*170;
-
-
-
-
-let arm =
-i%5;
-
-
-
-
-
-let angle =
-
-
-arm*(Math.PI*2/5)
-
-+
-
-r*.055
-
-+
-
-(Math.random()-.5)*.7;
-
-
-
-
-
-
-let spread =
-
-(Math.random()-.5)
-*(20-r/12);
-
-
-
-
-
-
-
+let r = Math.pow(Math.random(),.55)*170;
+let arm = i%5;
+let angle = arm*(Math.PI*2/5) + r*.055 + (Math.random()-.5)*.7;
+let spread = (Math.random()-.5)*(20-r/12);
 dust.push(
-
-
-
 Math.cos(angle)*r+spread,
-
-
 (Math.random()-.5)*12,
-
-
 Math.sin(angle)*r+spread
-
-
-
 );
-
-
-
 }
 
+const dustGeo = new THREE.BufferGeometry();
+dustGeo.setAttribute("position",new THREE.Float32BufferAttribute(dust,3));
 
-
-
-
-
-
-
-const dustGeo =
-new THREE.BufferGeometry();
-
-
-
-
-
-dustGeo.setAttribute(
-
-"position",
-
-new THREE.Float32BufferAttribute(
-dust,
-3
-
-)
-
-);
-
-
-
-
-
-
-const dustMat =
-new THREE.PointsMaterial({
-
+const dustMat = new THREE.PointsMaterial({
 color:0xa96cff,
-
 size:.45,
-
 transparent:true,
-
 opacity:.45,
-
-blending:
-THREE.AdditiveBlending,
-
+blending: THREE.AdditiveBlending,
 depthWrite:false
-
-
 });
 
-
-
-
-
-
-
-const dustCloud =
-new THREE.Points(
-
-dustGeo,
-
-dustMat
-
-);
-
-
-
-
-
-
+const dustCloud = new THREE.Points(dustGeo,dustMat);
 galaxy.add(dustCloud);
-
-
-
-
-
-
-
-
-
-
 
 // ======================
 // PALABRAS
 // ======================
-
-
-
 const words=[
-
-
 "Pinchecha 💖✨",
-
 "Hermosa 😻💖",
-
 "Mi Niña hermosa💖",
-
 "Mi Cielo 💖",
-
 "Hermosota 💘✨",
-
 "Mi vida💞",
-
 "Me Encantas 🥰",
-
 "Mi Amor 💖",
-
 "Mi Reina 👑💘",
-
 "Mi Mundo 🌎",
-
 "Mi Estrella ⭐",
-
 "Mi Liz 👑✨",
-
 "Mi Vida 💖",
-
 "Mi mosquita muerta 😻",
-
 "Mi Preciosa",
-
 "Mi Bonita 🌸",
-
 "Mi Tesoro",
-
 "Mi Cielo",
-
 "Mi Corazón ❤️",
-
 "Mi Princesa 👑",
-
 "Mi Dulzura 💖",
-
 "Mi Felicidad 💖",
-
 "Mi Sueño húmedo 😛",
-
 "tus pechos 😩💖",
-
 "Te Amooooooooooooooo 💖🐣",
-
 "tú eres mi Universo 🌌🫶",
-
 "Mi 11:11 ...",
-
 "Mi Todo💖💖💖",
-
 "mi kchetona💖",
-
 "mi niñas de ojitos lindos😻",
-
 "mi tus pechos :3 😩😻"
-
 ];
 
-
-
-
-
-
-
-
-
-const textures =
-words.map(text=>{
-
-
-
-let canvas =
-document.createElement("canvas");
-
-
-
+const textures = words.map(text=>{
+let canvas = document.createElement("canvas");
 canvas.width=300;
-
 canvas.height=70;
-
-
-
-
-
-let ctx =
-canvas.getContext("2d");
-
-
-
-
-
-ctx.font =
-"bold 20px Arial";
-
-
-
+let ctx = canvas.getContext("2d");
+ctx.font = "bold 20px Arial";
 ctx.textAlign="center";
-
-
-
-
-
-ctx.fillStyle =
-"rgba(245,220,255,.85)";
-
-
-
-
-
-ctx.shadowColor =
-"#b77cff";
-
-
-
+ctx.fillStyle = "rgba(245,220,255,.85)";
+ctx.shadowColor = "#b77cff";
 ctx.shadowBlur=5;
-
-
-
-
-
-ctx.fillText(
-
-text,
-
-150,
-
-45
-
-);
-
-
-
-
-
-
+ctx.fillText(text,150,45);
 return new THREE.CanvasTexture(canvas);
-
-
-
 });
 
-
-
-
-
-
-
-const textGroup =
-new THREE.Group();
-
-
-
-
+const textGroup = new THREE.Group();
 galaxy.add(textGroup);
 
-
-
-
-
-
-
 for(let i=0;i<320;i++){
-
-
-
-let mat =
-new THREE.SpriteMaterial({
-
-
-
-map:
-textures[
-Math.floor(
-Math.random()*textures.length
-)
-],
-
-
-
+let mat = new THREE.SpriteMaterial({
+map: textures[Math.floor(Math.random()*textures.length)],
 transparent:true,
-
-
-
-opacity:
-0.35+
-Math.random()*0.45,
-
-
-
-blending:
-THREE.AdditiveBlending,
-
-
-
+opacity: 0.35+Math.random()*0.45,
+blending: THREE.AdditiveBlending,
 depthWrite:false
-
-
-
 });
 
-
-
-
-
-
-let sprite =
-new THREE.Sprite(mat);
-
-
-
-
-
-let r =
-35+
-Math.random()*150;
-
-
-
-
-
-let arm =
-Math.floor(
-Math.random()*5
-);
-
-
-
-
-
-let angle =
-
-
-arm*(Math.PI*2/5)
-
-+
-
-r*.055
-
-+
-
-(Math.random()-.5)*.8;
-
-
-
-
-
-
+let sprite = new THREE.Sprite(mat);
+let r = 35+Math.random()*150;
+let arm = Math.floor(Math.random()*5);
+let angle = arm*(Math.PI*2/5) + r*.055 + (Math.random()-.5)*.8;
 
 sprite.position.set(
-
-
 Math.cos(angle)*r,
-
-
 (Math.random()-.5)*10,
-
-
 Math.sin(angle)*r
-
-
 );
 
-
-
-
-
-let size =
-2+
-Math.random()*5;
-
-
-
-
-
-sprite.scale.set(
-
-size*3,
-
-size,
-
-1
-
-);
-
-
-
-
-
-
+let size = 2+Math.random()*5;
+sprite.scale.set(size*3,size,1);
 textGroup.add(sprite);
-
-
-
 }
 
 // ======================
 // NÚCLEO BRILLANTE
 // ======================
-
-
-const coreCanvas =
-document.createElement("canvas");
-
-
+const coreCanvas = document.createElement("canvas");
 coreCanvas.width=512;
-
 coreCanvas.height=512;
+const coreCtx = coreCanvas.getContext("2d");
 
+const glow = coreCtx.createRadialGradient(256,256,0,256,256,256);
+glow.addColorStop(0,"rgba(255,255,255,1)");
+glow.addColorStop(0.25,"rgba(220,170,255,.9)");
+glow.addColorStop(0.55,"rgba(130,50,255,.45)");
+glow.addColorStop(1,"rgba(0,0,0,0)");
 
-
-
-const coreCtx =
-coreCanvas.getContext("2d");
-
-
-
-
-
-const glow =
-coreCtx.createRadialGradient(
-
-256,
-256,
-0,
-
-256,
-256,
-256
-
-);
-
-
-
-
-
-glow.addColorStop(
-
-0,
-
-"rgba(255,255,255,1)"
-
-);
-
-
-
-glow.addColorStop(
-
-0.25,
-
-"rgba(220,170,255,.9)"
-
-);
-
-
-
-glow.addColorStop(
-
-0.55,
-
-"rgba(130,50,255,.45)"
-
-);
-
-
-
-glow.addColorStop(
-
-1,
-
-"rgba(0,0,0,0)"
-
-);
-
-
-
-
-
-
-
-coreCtx.fillStyle =
-glow;
-
-
-
-
-
+coreCtx.fillStyle = glow;
 coreCtx.beginPath();
-
-
-
-coreCtx.arc(
-
-256,
-
-256,
-
-256,
-
-0,
-
-Math.PI*2
-
-);
-
-
-
-
-
+coreCtx.arc(256,256,256,0,Math.PI*2);
 coreCtx.fill();
 
-
-
-
-
-
-
-
-
-const core =
-new THREE.Sprite(
-
+const core = new THREE.Sprite(
 new THREE.SpriteMaterial({
-
-map:
-new THREE.CanvasTexture(coreCanvas),
-
-
+map: new THREE.CanvasTexture(coreCanvas),
 transparent:true,
-
-
-blending:
-THREE.AdditiveBlending,
-
-
+blending: THREE.AdditiveBlending,
 depthWrite:false
-
-
 })
-
 );
-
-
-
-
-
-
 scene.add(core);
-
-
-
-core.scale.set(
-
-100,
-
-100,
-
-1
-
-);
-
-
-
-
-
-
-
-
+core.scale.set(100,100,1);
 
 // ======================
 // NEBULOSA MORADA
 // ======================
-
-
-
-const nebula =
-new THREE.Sprite(
-
+const nebula = new THREE.Sprite(
 new THREE.SpriteMaterial({
-
-map:
-new THREE.CanvasTexture(coreCanvas),
-
-
+map: new THREE.CanvasTexture(coreCanvas),
 transparent:true,
-
-
 opacity:.35,
-
-
-blending:
-THREE.AdditiveBlending,
-
-
+blending: THREE.AdditiveBlending,
 depthWrite:false
-
-
 })
-
 );
-
-
-
-
-
-
-nebula.scale.set(
-
-300,
-
-300,
-
-1
-
-);
-
-
-
-
-
+nebula.scale.set(300,300,1);
 galaxy.add(nebula);
-
-
-
-
-
-
-
-
-
-
-
 
 // ======================
 // ANIMACIÓN
 // ======================
-
-
-
 let time=0;
-
-
-
-
-
 function animate(){
-
-
-
-requestAnimationFrame(
-animate
-);
-
-
-
-
+requestAnimationFrame(animate);
 time+=0.01;
 
-
-
-
-
-
-
 // giro suave
-
 galaxy.rotation.y +=0.0012;
-
-
-
-
-
-
 // palabras flotando
-
 textGroup.rotation.y +=0.0012;
-
-
-
-
-
-
-
 // polvo
-
 dustCloud.rotation.y +=0.0005;
-
-
-
-
-
-
-
-
 // movimiento de universo
-
-galaxy.position.y =
-
-Math.sin(time)*2;
-
-
-
-
-
-
-
-
+galaxy.position.y = Math.sin(time)*2;
 
 // pulso núcleo
+let pulse = 100+Math.sin(time*2)*8;
+core.scale.set(pulse,pulse,1);
 
-
-let pulse =
-
-
-100+
-
-Math.sin(time*2)*8;
-
-
-
-
-
-
-core.scale.set(
-
-pulse,
-
-pulse,
-
-1
-
-);
-
-
-
-
-
-
-
-nebula.material.opacity =
-
-
-0.30+
-
-Math.sin(time)*0.05;
-
-
-
-
-
-
+nebula.material.opacity = 0.30+Math.sin(time)*0.05;
 
 controls.update();
-
-
-
-renderer.render(
-
-scene,
-
-camera
-
-);
-
-
-
+renderer.render(scene,camera);
 }
 
-
-
-
-
-
 animate();
-
-
-
-
-
-
-
-
-
-
-
 
 // ======================
 // AJUSTE PANTALLA
 // ======================
-
-
-window.addEventListener(
-
-"resize",
-
-()=>{
-
-
-
-camera.aspect =
-
-innerWidth /
-innerHeight;
-
-
-
-
+window.addEventListener("resize",()=>{
+camera.aspect = innerWidth / innerHeight;
 camera.updateProjectionMatrix();
-
-
-
-
-
-renderer.setSize(
-
-innerWidth,
-
-innerHeight
-
-);
-
-
-
-}
-
-);
-
-
-
+renderer.setSize(innerWidth,innerHeight);
+});
 
 </script>
-
-
 </body>
-
-
 </html>
