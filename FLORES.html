@@ -235,7 +235,7 @@ body {
   inset: 0;
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain; /* Ajustado para que el video jamás se recorte */
   opacity: 0;
   transition: opacity 1s ease;
   z-index: 1;
@@ -439,7 +439,38 @@ document.querySelectorAll('.mini-card')[2].onclick = function(){
 
 setInterval(loadMessages, 10000);
 
-/* ── LÓGICA DE LA CINEMÁTICA ── */
+/* ── LÓGICA DE LA CINEMÁTICA EN PANTALLA COMPLETA ── */
+function enterFullscreen(element) {
+  if (element.requestFullscreen) {
+    element.requestFullscreen().then(() => {
+      // Intentar forzar rotación a landscape si el dispositivo lo permite
+      if (screen.orientation && screen.orientation.lock) {
+        screen.orientation.lock('landscape').catch(() => {});
+      }
+    }).catch(err => console.log('Error fullscreen:', err));
+  } else if (element.webkitRequestFullscreen) {
+    element.webkitRequestFullscreen();
+  } else if (element.msRequestFullscreen) {
+    element.msRequestFullscreen();
+  }
+}
+
+function exitFullscreen() {
+  if (document.fullscreenElement || document.webkitFullscreenElement || document.msFullscreenElement) {
+    if (document.exitFullscreen) {
+      document.exitFullscreen();
+    } else if (document.webkitExitFullscreen) {
+      document.webkitExitFullscreen();
+    } else if (document.msExitFullscreen) {
+      document.msExitFullscreen();
+    }
+  }
+  // Liberar la orientación de la pantalla
+  if (screen.orientation && screen.orientation.unlock) {
+    screen.orientation.unlock();
+  }
+}
+
 function playSecretCinematic() {
   const container = document.getElementById('cinematicContainer');
   const video = document.getElementById('cinematicVideo');
@@ -450,22 +481,21 @@ function playSecretCinematic() {
   // Pausar música de fondo del juego
   if (bgMusic) bgMusic.pause();
 
+  // Ocultar barras de navegador y forzar pantalla completa
+  enterFullscreen(document.documentElement);
+
   // Mostrar contenedor (fade in negro)
   container.style.display = 'flex';
   
-  // Timeout ligero para que el navegador procese el display: flex antes de aplicar la opacidad
   setTimeout(() => {
     container.style.opacity = '1';
 
-    // Mostrar el primer texto después de que el fondo negro esté visible
     setTimeout(() => {
       textStart.style.opacity = '1';
 
-      // Ocultar el primer texto después de 2 segundos
       setTimeout(() => {
         textStart.style.opacity = '0';
 
-        // Iniciar el video después de que el texto desaparezca
         setTimeout(() => {
           video.style.opacity = '1';
           video.play().catch(err => console.log('El video necesita interacción previa:', err));
@@ -474,11 +504,9 @@ function playSecretCinematic() {
           video.onended = () => {
             video.style.opacity = '0';
 
-            // Mostrar el texto final
             setTimeout(() => {
               textEnd.style.opacity = '1';
 
-              // Ocultar el texto final después de 2 segundos
               setTimeout(() => {
                 textEnd.style.opacity = '0';
 
@@ -488,23 +516,25 @@ function playSecretCinematic() {
                   
                   setTimeout(() => {
                     container.style.display = 'none';
+                    exitFullscreen(); // Salir de pantalla completa
+                    
                     // Reanudar música de fondo
                     if (bgMusic) bgMusic.play().catch(()=>{});
                   }, 1000);
                   
-                }, 1000); // Tiempo del fade del texto
+                }, 1000);
 
-              }, 2000); // Tiempo que dura el texto final visible
+              }, 2000);
 
-            }, 1000); // Tiempo del fade out del video
+            }, 1000);
 
           };
 
-        }, 1000); // Tiempo del fade out del texto inicial
+        }, 1000); 
 
-      }, 2000); // Tiempo que dura el texto inicial visible
+      }, 2000);
 
-    }, 1000); // Tiempo del fade in del contenedor negro
+    }, 1000);
 
   }, 50);
 }
