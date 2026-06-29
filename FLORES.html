@@ -162,6 +162,85 @@ body {
   .mini-card { height: 100px; }
   .snoopy-frame { width: 120px; }
 }
+
+/* ── REGALO SECRETO ── */
+.secret-gift-btn {
+  position: fixed;
+  bottom: 25px;
+  right: 25px;
+  width: 55px;
+  height: 55px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #ff477e, #ff9ec4);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 95;
+  box-shadow: 0 0 15px rgba(255, 71, 126, 0.6), 0 4px 10px rgba(0,0,0,0.4);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  animation: pulse-glow 2.5s infinite, float-btn 3s ease-in-out infinite;
+  -webkit-tap-highlight-color: transparent;
+}
+.secret-gift-btn .gift-emoji {
+  font-size: 22px;
+  line-height: 1;
+  margin-bottom: 2px;
+}
+.secret-gift-btn .gift-text {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 8px;
+  font-weight: 600;
+  color: white;
+  line-height: 1;
+}
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 15px rgba(255, 71, 126, 0.6), 0 4px 10px rgba(0,0,0,0.4); }
+  50% { box-shadow: 0 0 25px rgba(255, 71, 126, 0.9), 0 8px 15px rgba(0,0,0,0.5); }
+}
+@keyframes float-btn {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+/* ── CINEMÁTICA OVERLAY ── */
+#cinematicContainer {
+  position: fixed;
+  inset: 0;
+  background-color: #000;
+  z-index: 9999;
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 1s ease;
+}
+.cinematic-msg {
+  position: absolute;
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 20px;
+  font-weight: 500;
+  color: #fff;
+  text-align: center;
+  padding: 0 20px;
+  opacity: 0;
+  transition: opacity 1s ease;
+  z-index: 2;
+  text-shadow: 0 2px 10px rgba(0,0,0,0.8);
+}
+#cinematicVideo {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0;
+  transition: opacity 1s ease;
+  z-index: 1;
+  pointer-events: none;
+}
 </style>
 </head>
 <body>
@@ -219,6 +298,17 @@ body {
         <button class="chat-send-btn" onclick="sendMessage()">➤</button>
     </div>
   </div>
+</div>
+
+<div class="secret-gift-btn" onclick="playSecretCinematic()">
+  <span class="gift-emoji">🎁</span>
+  <span class="gift-text">Para ti</span>
+</div>
+
+<div id="cinematicContainer">
+  <video id="cinematicVideo" src="video/regalo.mp4" playsinline webkit-playsinline></video>
+  <div id="cinematicTextStart" class="cinematic-msg">Para la persona más importante de mi vida ❤️</div>
+  <div id="cinematicTextEnd" class="cinematic-msg">Gracias por compartir tantos momentos conmigo ❤️</div>
 </div>
 
 <script>
@@ -348,6 +438,76 @@ document.querySelectorAll('.mini-card')[2].onclick = function(){
 };
 
 setInterval(loadMessages, 10000);
+
+/* ── LÓGICA DE LA CINEMÁTICA ── */
+function playSecretCinematic() {
+  const container = document.getElementById('cinematicContainer');
+  const video = document.getElementById('cinematicVideo');
+  const textStart = document.getElementById('cinematicTextStart');
+  const textEnd = document.getElementById('cinematicTextEnd');
+  const bgMusic = document.getElementById('music');
+
+  // Pausar música de fondo del juego
+  if (bgMusic) bgMusic.pause();
+
+  // Mostrar contenedor (fade in negro)
+  container.style.display = 'flex';
+  
+  // Timeout ligero para que el navegador procese el display: flex antes de aplicar la opacidad
+  setTimeout(() => {
+    container.style.opacity = '1';
+
+    // Mostrar el primer texto después de que el fondo negro esté visible
+    setTimeout(() => {
+      textStart.style.opacity = '1';
+
+      // Ocultar el primer texto después de 2 segundos
+      setTimeout(() => {
+        textStart.style.opacity = '0';
+
+        // Iniciar el video después de que el texto desaparezca
+        setTimeout(() => {
+          video.style.opacity = '1';
+          video.play().catch(err => console.log('El video necesita interacción previa:', err));
+
+          // Cuando el video termine
+          video.onended = () => {
+            video.style.opacity = '0';
+
+            // Mostrar el texto final
+            setTimeout(() => {
+              textEnd.style.opacity = '1';
+
+              // Ocultar el texto final después de 2 segundos
+              setTimeout(() => {
+                textEnd.style.opacity = '0';
+
+                // Fade out del contenedor completo y volver al juego
+                setTimeout(() => {
+                  container.style.opacity = '0';
+                  
+                  setTimeout(() => {
+                    container.style.display = 'none';
+                    // Reanudar música de fondo
+                    if (bgMusic) bgMusic.play().catch(()=>{});
+                  }, 1000);
+                  
+                }, 1000); // Tiempo del fade del texto
+
+              }, 2000); // Tiempo que dura el texto final visible
+
+            }, 1000); // Tiempo del fade out del video
+
+          };
+
+        }, 1000); // Tiempo del fade out del texto inicial
+
+      }, 2000); // Tiempo que dura el texto inicial visible
+
+    }, 1000); // Tiempo del fade in del contenedor negro
+
+  }, 50);
+}
 </script>
 </body>
 </html>
