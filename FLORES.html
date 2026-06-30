@@ -43,12 +43,43 @@ body { height: 100vh; height: 100dvh; overflow: hidden; background: radial-gradi
 .mini-card:nth-child(3) { background:linear-gradient(135deg,#2f9e44,#69db7c); box-shadow:0 0 0 2px #69db7c,3px 3px 0 #145523; }
 .mini-card:nth-child(4) { background:linear-gradient(135deg,#6741d9,#b197fc); box-shadow:0 0 0 2px #b197fc,3px 3px 0 #2c1a6b; }
 
-.btn-mailbox { margin-top: 15px; width: 90%; max-width: 380px; height: 68px; border-radius: 10px; background: #080812; border: none; cursor: pointer; position: relative; overflow: hidden; display: flex; align-items: center; gap: 12px; padding: 0 16px; box-shadow: 0 0 0 1px rgba(255,100,180,0.3), 0 0 22px rgba(255,80,150,0.18); flex-shrink: 0; }
-.mail-icon-box { width: 40px; height: 40px; flex-shrink: 0; border-radius: 9px; background: linear-gradient(135deg,#ff477e,#ff9ec4); display: flex; align-items: center; justify-content: center; font-size: 19px; box-shadow: 0 0 14px rgba(255,80,150,0.5); animation: pulse-mail 3s ease-in-out infinite; }
-@keyframes pulse-mail { 0%,100%{box-shadow:0 0 14px rgba(255,80,150,0.5)} 50%{box-shadow:0 0 26px rgba(255,80,150,0.82)} }
-.mail-text { display: flex; flex-direction: column; gap: 2px; flex: 1; text-align: left; }
-.mail-title { font-size: 14px; font-weight: 600; color: #fff; }
-.mail-sub { font-size: 10px; color: rgba(255,150,200,0.6); }
+/* ── BOTON DE CHAT ESTILO WHATSAPP ── */
+.btn-mailbox { 
+  margin-top: 15px; width: 90%; max-width: 380px; height: 68px; 
+  border-radius: 12px; 
+  background: #202c33; /* Color oscuro WhatsApp */
+  border: none; cursor: pointer; 
+  position: relative; /* Eliminamos overflow: hidden para que la burbuja se vea */
+  display: flex; align-items: center; gap: 14px; padding: 0 16px; 
+  box-shadow: 0 4px 15px rgba(0,0,0,0.3); 
+  flex-shrink: 0; 
+  transition: transform 0.2s ease;
+}
+.btn-mailbox:active { transform: scale(0.97); }
+
+.mail-icon-box { 
+  width: 46px; height: 46px; flex-shrink: 0; border-radius: 50%; 
+  background: #00a884; /* Verde WhatsApp */
+  display: flex; align-items: center; justify-content: center; font-size: 22px; 
+  box-shadow: 0 0 12px rgba(0,168,132,0.4); 
+  animation: pulse-mail 2.5s ease-in-out infinite; 
+}
+@keyframes pulse-mail { 0%,100%{box-shadow:0 0 12px rgba(0,168,132,0.4)} 50%{box-shadow:0 0 22px rgba(0,168,132,0.8)} }
+
+.mail-text { display: flex; flex-direction: column; gap: 4px; flex: 1; text-align: left; }
+.mail-title { font-size: 15px; font-weight: 600; color: #e9edef; font-family: -apple-system, sans-serif; }
+.mail-sub { font-size: 13px; color: #8696a0; font-family: -apple-system, sans-serif; }
+
+.unread-badge { 
+  position: absolute; top: -8px; right: -8px; 
+  background: #25D366; /* Verde notificacion brillante */
+  color: #111b21; /* Texto oscuro para contraste */
+  font-family: -apple-system, sans-serif; font-weight: 800; font-size: 12px; 
+  padding: 4px 8px; border-radius: 20px; 
+  display: none; z-index: 10; 
+  border: 2px solid #1a1a2e; /* Borde del mismo color del fondo para recortar sutilmente */
+  box-shadow: 0 2px 5px rgba(0,0,0,0.4); 
+}
 
 .snoopy-area { flex: 1; display: flex; align-items: flex-end; justify-content: center; width: 100%; overflow: hidden; margin-top: auto; }
 .snoopy-frame { width: 152px; height: auto; max-height: 180px; object-fit: contain; animation: respirar 2.5s ease-in-out infinite; filter: drop-shadow(0 10px 12px rgba(0,0,0,0.8)); }
@@ -156,7 +187,6 @@ body { height: 100vh; height: 100dvh; overflow: hidden; background: radial-gradi
 .action-sheet-overlay.show .action-sheet { transform: translateY(0); }
 .action-item { padding: 16px 24px; color: #ff4757; font-family: -apple-system, sans-serif; font-size: 17px; display: flex; align-items: center; gap: 14px; cursor: pointer; }
 
-.unread-badge { position: absolute; top: -5px; right: -5px; background: #00a884; color: white; font-family: -apple-system, sans-serif; font-weight: bold; font-size: 11px; padding: 3px 7px; border-radius: 50%; display: none; z-index: 10; }
 .toast { position: fixed; top: 20px; left: 50%; transform: translateX(-50%) translateY(-100px); background: #00a884; color: #fff; font-family: -apple-system, sans-serif; font-weight: 500; font-size: 14px; padding: 12px 24px; border-radius: 30px; transition: 0.4s; z-index: 1000; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
 .toast.show { transform: translateX(-50%) translateY(0); }
 
@@ -199,8 +229,11 @@ body { height: 100vh; height: 100dvh; overflow: hidden; background: radial-gradi
   
   <button class="btn-mailbox" onclick="openMail()">
     <div class="unread-badge" id="mainBadge">0</div>
-    <div class="mail-icon-box">💌</div>
-    <div class="mail-text"><span class="mail-title">Chat.me</span><span class="mail-sub" id="mailSubtitle">Tienes mensajes nuevos</span></div>
+    <div class="mail-icon-box">💬</div>
+    <div class="mail-text">
+      <span class="mail-title">WhatsApp</span>
+      <span class="mail-sub" id="mailSubtitle">Tienes mensajes nuevos</span>
+    </div>
   </button>
   
   <div class="snoopy-area"><img id="snoopy" src="1.png" class="snoopy-frame"></div>
@@ -266,7 +299,8 @@ body { height: 100vh; height: 100dvh; overflow: hidden; background: radial-gradi
   </div>
   
   <div class="status-content" onclick="closeWhatsAppStatus(event)">
-    <video id="statusVideo" playsinline autoplay muted loop style="display:none;"></video>
+    <!-- Etiqueta de video ajustada: sin 'muted' y sin 'loop' -->
+    <video id="statusVideo" playsinline autoplay style="display:none;"></video>
     <img id="statusImg" style="display:none;">
     <div id="statusFallbackTxt" class="status-fallback-text">Te amo infinitamente ❤️</div>
   </div>
@@ -518,34 +552,76 @@ function changeWallpaper() {
   showToast("Fondo de pantalla actualizado 🖼️");
 }
 
-/* ── ESTADOS (MP4 y JPG) CON TAMAÑO PERFECTO ── */
+/* ── ESTADOS (MP4 y JPG) CON TAMAÑO Y DURACIÓN PERFECTA ── */
 let statusTimeout;
 function openWhatsAppStatus() {
   const overlay = document.getElementById("statusOverlay");
   const bar = document.getElementById("statusBarLine");
-  const v = document.getElementById("statusVideo"); const i = document.getElementById("statusImg"); const f = document.getElementById("statusFallbackTxt");
+  const v = document.getElementById("statusVideo"); 
+  const i = document.getElementById("statusImg"); 
+  const f = document.getElementById("statusFallbackTxt");
   
   overlay.classList.add("show");
   v.style.display = 'none'; i.style.display = 'none'; f.style.display = 'none';
   
+  // 1. Silenciar la música de fondo de la web
+  document.getElementById('music').pause();
+  document.getElementById('chatMusic').pause();
+  
+  // Reiniciamos la barra
+  bar.style.transition = "none"; 
+  bar.style.width = "0%";
+  
   v.src = "estado.mp4";
+  
   v.onerror = function() {
       v.style.display = 'none'; i.src = "estado.jpg";
       i.onerror = function() { i.style.display = 'none'; f.style.display = 'block'; };
       i.onload = function() { i.style.display = 'block'; };
+      
+      // Si falla y carga imagen, forzamos 10 segundos
+      bar.style.transition = "none"; bar.style.width = "0%";
+      setTimeout(() => { bar.style.transition = "width 10s linear"; bar.style.width = "100%"; }, 50);
+      statusTimeout = setTimeout(() => { closeWhatsAppStatus(); }, 10000);
   };
-  v.onloadeddata = function() { v.style.display = 'block'; v.play(); };
-
-  bar.style.transition = "none"; bar.style.width = "0%";
-  setTimeout(() => { bar.style.transition = "width 10s linear"; bar.style.width = "100%"; }, 50);
-
-  statusTimeout = setTimeout(() => { closeWhatsAppStatus(); }, 10000);
+  
+  // 2. Al cargar los datos del video, detectamos su duración real
+  v.onloadedmetadata = function() {
+      // Si el video tiene duración válida, la usamos; si no, por defecto 10s
+      const duracionVideo = (v.duration && v.duration !== Infinity) ? v.duration * 1000 : 10000;
+      
+      bar.style.transition = "none"; bar.style.width = "0%";
+      setTimeout(() => { 
+          bar.style.transition = `width ${duracionVideo}ms linear`; 
+          bar.style.width = "100%"; 
+      }, 50);
+      
+      // Programamos el cierre con la duración exacta del video
+      statusTimeout = setTimeout(() => { closeWhatsAppStatus(); }, duracionVideo);
+  };
+  
+  v.onloadeddata = function() { 
+      v.style.display = 'block'; 
+      v.play().catch(e => {}); 
+  };
 }
 
 function closeWhatsAppStatus(e) {
   if (e) e.stopPropagation(); clearTimeout(statusTimeout);
-  document.getElementById("statusVideo").pause(); document.getElementById("statusOverlay").classList.remove("show");
+  const v = document.getElementById("statusVideo");
+  
+  v.pause();
+  v.currentTime = 0; // Reiniciamos el video al inicio
+  document.getElementById("statusOverlay").classList.remove("show");
+  
+  // 3. Restaurar la música dependiento si el chat (MailModal) está abierto
+  if (document.getElementById("mailModal").classList.contains("open")) {
+      document.getElementById("chatMusic").play().catch(()=>{});
+  } else {
+      document.getElementById("music").play().catch(()=>{});
+  }
 }
+
 function pauseStatusBar(e) { e.stopPropagation(); clearTimeout(statusTimeout); document.getElementById("statusBarLine").style.transition = "none"; }
 function sendStatusReply() {
   let inp = document.getElementById("statusReplyInput"); let txt = inp.value.trim();
