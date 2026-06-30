@@ -1,5 +1,8 @@
 const canvas = document.getElementById("game");
 const ctx = canvas.getContext("2d");
+// Añade esto cerca de tus variables globales (donde declaras musicIndex, etc.)
+const VOLUME_MUSIC = 0.4; // 40% volumen para la música
+const VOLUME_SFX = 0.2;   // 20% volumen para efectos (monedas, etc.)
 
 // RECURSOS
 const ASSETS_TO_LOAD = {
@@ -116,6 +119,10 @@ let actionBuffer, items, obstacles, goldScore, nextSkinId, bgX = 0, bgSpeed, spa
 const GROUND_PERCENT = 0.92, BASE_SPEED = 6, DELAY_FRAMES = 2;
 
 function initGame() {
+    // ACTIVAR PANTALLA COMPLETA
+    const elem = document.documentElement;
+    if (elem.requestFullscreen) elem.requestFullscreen().catch(() => {});
+
     gameActive = true;
     window.horde = [new Player(selectedSkinId, true)];
     actionBuffer = []; items = []; obstacles = [];
@@ -134,8 +141,13 @@ function setupMusic() {
     if (currentBgMusic) currentBgMusic.pause();
     currentBgMusic = sounds[`m${musicIndex + 1}`];
     if (!currentBgMusic) return;
-    currentBgMusic.volume = 0.5;
-    currentBgMusic.onended = () => { musicIndex = (musicIndex + 1) % 4; setupMusic(); currentBgMusic.play(); };
+    
+    currentBgMusic.volume = VOLUME_MUSIC; // Aplicamos el volumen bajo
+    currentBgMusic.onended = () => { 
+        musicIndex = (musicIndex + 1) % 4; 
+        setupMusic(); 
+        currentBgMusic.play(); 
+    };
 }
 
 window.leaderJump = () => {
@@ -194,14 +206,21 @@ function updateUI() {
 
 function gameLoop() {
     if (!gameActive) return;
-    ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
+    
+    // Limpiar pantalla
+    ctx.clearRect(0, 0, canvas.width, canvas.height); // Usamos canvas.width/height ajustados
+    
+    // Filtramos solo los personajes que NO están muriendo para la lógica de la horda
     let alive = window.horde.filter(p => !p.isDying);
+    
+    // Si no quedan vivos y la horda está vacía, FIN DEL JUEGO
     if (alive.length === 0 && window.horde.length === 0) { 
         gameActive = false; 
         document.getElementById("game-over-screen").style.display = "flex"; 
         return; 
     }
     
+    // Lógica de tiempo, fondo y velocidad
     const time = (Date.now() - startTime) / 1000;
     if (time > 8) introActive = false;
     bgSpeed = BASE_SPEED + (time * 0.08) + (alive.length > 15 ? 4 : 0);
@@ -209,45 +228,88 @@ function gameLoop() {
     const gY = (window.innerHeight * GROUND_PERCENT) - 90;
     let sc = window.innerHeight / imgs.bg1.naturalHeight;
     bgX = (bgX - bgSpeed) % (imgs.bg1.naturalWidth * sc);
-    for(let i=0; i<4; i++) ctx.drawImage(imgs.bg1, bgX + (i * imgs.bg1.naturalWidth * sc), 0, imgs.bg1.naturalWidth*sc, window.innerHeight);
+    
+    // Dibujar fondo
+    for(let i = 0; i < 4; i++) {
+        ctx.drawImage(imgs.bg1, bgX + (i * imgs.bg1.naturalWidth * sc), 0, imgs.bg1.naturalWidth * sc, window.innerHeight);
+    }
 
+    // Lógica de movimiento de la horda
     if (alive.length > 0) {
-        const lead = alive[0]; lead.isLeader = true;
+        const lead = alive[0]; 
+        lead.isLeader = true;
         lead.updateLeader(gY);
-        actionBuffer.push({x: lead.x, y: lead.y, state: lead.state, frame: lead.frame, vY: lead.velocityY});
-        if (actionBuffer.length > 1000) actionBuffer.shift();
+        
+        // Cada integrante de la horda sigue al que tiene adelante (i-1)
         for (let i = 1; i < alive.length; i++) {
-            const d = actionBuffer[actionBuffer.length - 1 - (i * DELAY_FRAMES)] || actionBuffer[0];
-            alive[i].updateFollower(d, i);
+            let prev = alive[i-1];
+            let data = { x: prev.x, y: prev.y, state: prev.state, frame: prev.frame, vY: prev.velocityY };
+            alive[i].updateFollower(data, 1); 
         }
     }
 
+    // Spawn de objetos y obstáculos
     spawnTimer++;
     if (spawnTimer > 30) { spawnPattern(gY); spawnTimer = 0; }
     lastSpawnX -= bgSpeed;
 
+    // Colisiones con obstáculos
     obstacles.forEach((obs, idx) => {
-        obs.update(bgSpeed); obs.draw(ctx);
-        for(let p of alive) if(checkCollision(p, obs, 25)) { p.triggerDeath(); obstacles.splice(idx,1); updateUI(); break; }
+        obs.update(bgSpeed); 
+        obs.draw(ctx);
+        for(let p of alive) {
+            if(checkCollision(p, obs, 25)) { 
+                p.triggerDeath(); 
+                obstacles.splice(idx, 1); 
+                updateUI(); 
+                break; 
+            }
+        }
     });
 
+    // Recolección de items
     items = items.filter(it => {
-        it.update(bgSpeed); it.draw(ctx);
+        it.update(bgSpeed); 
+        it.draw(ctx);
         let hit = false;
-        for(let p of alive) if(checkCollision(p, it, -10)) { 
-            hit = true;
-            if(it.type==='gold') { goldScore++; document.getElementById("gold-count").innerText = goldScore; sounds.coin.cloneNode().play(); }
-            else if(it.type==='bread') { window.horde.push(new Player(nextSkinId, false, true)); nextSkinId = (nextSkinId % 4)+1; sounds.bread.cloneNode().play(); updateUI(); }
-            else if(it.type==='salchipapa') { window.horde.push(new Player(5, false, true)); window.horde.push(new Player(7, false, true)); updateUI(); }
-            break;
+        for(let p of alive) {
+            if(checkCollision(p, it, -10)) { 
+                hit = true;
+                if(it.type === 'gold') { 
+                    goldScore++; 
+                    document.getElementById("gold-count").innerText = goldScore; 
+                    let s = sounds.coin.cloneNode(); s.volume = 0.2; s.play(); 
+                }
+                else if(it.type === 'bread') { 
+                    window.horde.push(new Player(nextSkinId, false, true)); 
+                    nextSkinId = (nextSkinId % 4) + 1; 
+                    let s = sounds.bread.cloneNode(); s.volume = 0.2; s.play(); 
+                    updateUI(); 
+                }
+                else if(it.type === 'salchipapa') { 
+                    window.horde.push(new Player(5, false, true)); 
+                    window.horde.push(new Player(7, false, true)); 
+                    updateUI(); 
+                }
+                break;
+            }
         }
         return !hit && it.x > -200;
     });
 
+    // Dibujado y limpieza de la horda (vivos + muriendo)
     window.horde.forEach((p, idx) => {
-        if(p.isDying) p.updateLeader(gY);
-        p.draw(ctx);
-        if(p.x < -200 || p.deathTimer > 200) window.horde.splice(idx,1);
+        if (p.isDying) {
+            p.updateLeader(gY); // El muerto cae
+            p.draw(ctx);
+            // Si el muerto sale de pantalla o pasa 1 segundo, se elimina del array
+            if (p.x < -100 || p.deathTimer > 60) {
+                window.horde.splice(idx, 1);
+                updateUI();
+            }
+        } else {
+            p.draw(ctx);
+        }
     });
 
     requestAnimationFrame(gameLoop);

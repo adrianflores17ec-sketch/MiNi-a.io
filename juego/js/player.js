@@ -99,10 +99,14 @@ class Player {
         }
         if (!data) return;
         
-        // El seguidor imita la posición del buffer con suavizado
-        const targetX = data.x - (index * 25) + this.groupOffsetX;
-        this.x += (targetX - this.x) * 0.2;
-        this.y = data.y + this.groupOffsetY;
+        // Ajustamos la posición para que se mantengan pegaditos
+        const targetX = data.x - 30; // Distancia fija entre cada uno
+        const targetY = data.y;
+        
+        // Suavizado del movimiento (0.3 es más rápido que 0.2, más natural)
+        this.x += (targetX - this.x) * 0.3;
+        this.y += (targetY - this.y) * 0.3;
+        
         this.state = data.state;
         this.frame = data.frame;
         this.velocityY = data.vY;
